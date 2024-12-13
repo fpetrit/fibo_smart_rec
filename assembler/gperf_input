@@ -5,7 +5,7 @@
 %global-table
 %define word-array-name opstrings
 %struct-type
-struct opstring {char * name; int opcode; };
+struct opstring {char * name; unsigned char opcode; };
 %%
 pop,    0
 ipop,   1

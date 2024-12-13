@@ -1,5 +1,5 @@
 /* C code produced by gperf version 3.1 */
-/* Command-line: gperf --output-file=opstring_mapping.c gperf_input  */
+/* Command-line: gperf --output-file opstring_mapping.c gperf_input  */
 /* Computed positions: -k'1-2' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -30,7 +30,7 @@ error "gperf generated tables don't work with this execution character set. Plea
 #endif
 
 #line 8 "gperf_input"
-struct opstring {char * name; int opcode; };
+struct opstring {char * name; unsigned char opcode; };
 #include <string.h>
 
 #define TOTAL_KEYWORDS 15
@@ -144,20 +144,13 @@ in_word_set (str, len)
 }
 
 
-// return -1 if not in set and corresponding opcode if in set
-signed char opstring_to_opcode(const char * string, size_t len){
+// return 255 if not in set and corresponding opcode if in set
+unsigned char opstring_to_opcode(const char * string, size_t len){
 
-  signed char res;
+  unsigned char res;
   struct opstring * p = in_word_set(string, len);
 
-  if (! p){
-    res = -1;
-  } else {
-    res = p->opcode;
-  }
+  res = ( ! p ) ? 255 : p->opcode;
 
   return res;
 }
-
-
-

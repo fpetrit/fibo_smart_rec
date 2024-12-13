@@ -3,6 +3,6 @@
 
 #include <stdlib.h>
 
-signed char opstring_to_opcode(const char * string, size_t len);
+unsigned char opstring_to_opcode(const char * string, size_t len);
 
 #endif

@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <math.h>
 #include "assembler.h"
 
 /**
@@ -33,20 +32,46 @@ void print_response(Assembly_response * r){
     
 }
 
-/**
- * the passed string shoud be at least of length:
- * 6 for operands value conversion (signed short)
+/** SIGNED / UNSIGNED INTEGERS HEXA CONVERSION
+ *
+ * the string argument shoud be at least of length:
+ * - 6 (a minus sign, 4 digits, a null byte) for operands value conversion (signed short)
+ * - 3 (2 digits, a null byte) for opcode conversion (unsigned char)
  */
 static void decimal_to_hex_string(signed short n, char s[]){
 
-    bool negative = (n < 0 ) ? 1 : 0;
+    // sprintf "x" conversion specifier converts signed integers types to two's complement representation hexadecimal
+    // we do not want that
+    // cast a signed type to an unsigned type do not keep the correct absolute value
+    // we must work with abs() from stdlib to have signed positive numbers
+    // abs() supports int argument
 
-    // we do not want a two's complement hexa representation
-    // cast n to unsigned, storing the sign then use sprintf ?
+    // "%0.4x" format string : flag field: '0' for left padding 0s, precision field: .4 for a 4 digits result
 
+    char sign[2] = "";
+
+    if (n < 0)
+        sign[0] = '-';
+
+    sprintf(s, "%s%0.4x", sign, abs( (int)n) );
 }
 
-Assembly_response assemble(FILE * src, FILE * output, Assembly_response * response){
+// for opcodes
+static void decimal_to_hex_string(unsigned char n, char s[]){
 
+    // sprintf "x" conversion specifier works as we want for unsigned types : no two's complement representation.
+
+    sprintf(s, "0.4x", n);
 }
+
+// return 1 if the line syntax is correct, 0 if not
+// sets the response code accordingly in any case
+// we can work safely with the line after calling parse_line
+static bool parse_line(char * src_line, unsigned char * response_code);
+
+// src_line MUST BE VERIFIED WITH parse_line before calling this function
+// opcode is filled in, label and operand are possibly empty, return what ?
+static bool get_from_line(char * src_line, char * label, unsigned char * opcode, signed short * operand);
+
+Assembly_response assemble(FILE * src, FILE * output, Assembly_response * response);
 
