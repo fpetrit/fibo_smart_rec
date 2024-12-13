@@ -1,0 +1,30 @@
+# this is an input file for the GNU gperf perfect hash function generator utility
+# a perfect minimal hash functions is needed to map in a hash table the opstrings (keys) to opcodes (values) to generate the hexadecimal ouptut efficiently
+# there are 15 opstrings, maximal length 5 characters
+#
+# https://www.gnu.org/software/gperf/manual/gperf.html
+# declarations
+%language=C
+%define hash-function-name opstring_hash
+%readonly-tables
+%includes
+%global-table
+%define word-array-name opstrings
+# keywords entries
+%%
+pop
+ipop
+push
+ipush
+push#
+jmp
+jnz
+call
+ret
+read
+write
+op
+rnd
+dup
+halt
+%%

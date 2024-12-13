@@ -3,6 +3,8 @@
 #include "assembler/assembler.h"
 #include "runtime/runtime.h"
 
+#include "assembler/opstring_hash_table.h"
+
 
 int main(int argc, char ** argv){
 
@@ -34,14 +36,14 @@ int main(int argc, char ** argv){
     // parsing and assembling
 
     Assembly_response * response;
-    assemble(src, output,response);
+    // assemble(src, output,response);
 
     // test the error code and display if error
 
-    if (response->response_code != 0){
-        print_response(response);
-        return 1;
-    }
+    // if (response->response_code != 0){
+    //     print_response(response);
+    //     return 1;
+    // }
 
     // close source file
 
@@ -49,11 +51,19 @@ int main(int argc, char ** argv){
 
     // if no error, begin execution of ./hexa.txt
 
-    run(output);
+    // run(output);
 
     // close output file
 
     fclose(output);
+
+    unsigned int tab[25];
+
+    test(tab);
+
+    for (int i = 0; i < 25; i++){
+        printf("%u: %u\n", i, tab[i]);
+    }
 
     return 0;
 }
