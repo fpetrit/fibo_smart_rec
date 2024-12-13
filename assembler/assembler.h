@@ -3,11 +3,16 @@
 
 #include <stdio.h>
 
+#define SRC_LINE_MAX_LEN            30
+#define SRC_INSTRUCTIONS_MAX_NO     500
+#define SRC_LINE_CHAR_MAX_NO        100
+#define LABEL_MAX_CHAR_NO           30
+
 typedef struct {
 
-    int response_code;
+    unsigned char response_code;
     int line_no;
-    char src_line[100];
+    char * src_line;
 
 } Assembly_response ;
 

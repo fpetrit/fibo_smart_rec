@@ -1,11 +1,5 @@
-// This file is an implementation of an efficient fixed size and readonly hash table
-// It maps the opstrings (pop, push, push# ...) to their associated opcodes
-// A near minimal perfect hash function and an "in_word_set" functions are generated with the GNU gperf perfect hash function generator utility
-
-
-
 /* C code produced by gperf version 3.1 */
-/* Command-line: gperf --output-file ./gperf_output.c gperf_input  */
+/* Command-line: gperf --output-file=opstring_mapping.c gperf_input  */
 /* Computed positions: -k'1-2' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -35,8 +29,9 @@
 error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gperf@gnu.org>."
 #endif
 
+#line 8 "gperf_input"
+struct opstring {char * name; int opcode; };
 #include <string.h>
-#include <stddef.h>
 
 #define TOTAL_KEYWORDS 15
 #define MIN_WORD_LENGTH 2
@@ -89,31 +84,46 @@ opstring_hash (str, len)
   return len + asso_values[(unsigned char)str[1]] + asso_values[(unsigned char)str[0]];
 }
 
-static const char * const opstrings[] =
+static const struct opstring opstrings[] =
   {
-    "", "", "",
-    "ret",
-    "read",
-    "write",
-    "",
-    "op",
-    "pop",
-    "push",
-    "push#",
-    "",
-    "dup",
-    "rnd",
-    "ipop",
-    "ipush",
-    "", "",
-    "jnz",
-    "halt",
-    "", "", "",
-    "jmp",
-    "call"
+    {""}, {""}, {""},
+#line 18 "gperf_input"
+    {"ret",    8},
+#line 19 "gperf_input"
+    {"read",   9},
+#line 20 "gperf_input"
+    {"write",  10},
+    {""},
+#line 21 "gperf_input"
+    {"op",     11},
+#line 10 "gperf_input"
+    {"pop",    0},
+#line 12 "gperf_input"
+    {"push",   2},
+#line 14 "gperf_input"
+    {"push#",  4},
+    {""},
+#line 23 "gperf_input"
+    {"dup",    13},
+#line 22 "gperf_input"
+    {"rnd",    12},
+#line 11 "gperf_input"
+    {"ipop",   1},
+#line 13 "gperf_input"
+    {"ipush",  3},
+    {""}, {""},
+#line 16 "gperf_input"
+    {"jnz",    6},
+#line 24 "gperf_input"
+    {"halt",   99},
+    {""}, {""}, {""},
+#line 15 "gperf_input"
+    {"jmp",    5},
+#line 17 "gperf_input"
+    {"call",   7}
   };
 
-static char *
+const struct opstring *
 in_word_set (str, len)
      register const char *str;
      register size_t len;
@@ -124,21 +134,30 @@ in_word_set (str, len)
 
       if (key <= MAX_HASH_VALUE)
         {
-          register const char *s = opstrings[key];
+          register const char *s = opstrings[key].name;
 
           if (*str == *s && !strcmp (str + 1, s + 1))
-            return s;
+            return &opstrings[key];
         }
     }
   return 0;
 }
 
 
+// return -1 if not in set and corresponding opcode if in set
+signed char opstring_to_opcode(const char * string, size_t len){
 
+  signed char res;
+  struct opstring * p = in_word_set(string, len);
 
+  if (! p){
+    res = -1;
+  } else {
+    res = p->opcode;
+  }
 
-void test(unsigned int tab[25]){
-    for (int i = 0; i < 25; i++){
-      tab[i] = opstring_hash(opstrings[i]);
-    }
+  return res;
 }
+
+
+

@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "assembler/assembler.h"
 #include "runtime/runtime.h"
-
-#include "assembler/opstring_hash_table.h"
+#include "assembler/opstring_mapping.h"
 
 
 int main(int argc, char ** argv){
@@ -57,13 +57,9 @@ int main(int argc, char ** argv){
 
     fclose(output);
 
-    unsigned int tab[25];
+    int n = -32768;
 
-    test(tab);
-
-    for (int i = 0; i < 25; i++){
-        printf("%u: %u\n", i, tab[i]);
-    }
+    printf("%x\n", n);
 
     return 0;
 }
