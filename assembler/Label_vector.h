@@ -18,7 +18,7 @@ typedef struct {
 
 Label_vector * Label_vector_construct();
 
-Label_vector * Label_vector_create_label(Label_vector * vect, char * name, unsigned int address);
+Label * Label_vector_create_label(Label_vector ** vect, char * name, unsigned int address);
 
 int Label_vector_search(Label_vector * vect, char * name);
 
