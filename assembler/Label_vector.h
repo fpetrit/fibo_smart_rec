@@ -18,10 +18,10 @@ typedef struct {
 
 Label_vector * Label_vector_construct();
 
-Label_vector * Label_vector_create_label(Label_vector * arr, char * name, unsigned int address);
+Label_vector * Label_vector_create_label(Label_vector * vect, char * name, unsigned int address);
 
-int Label_vector_search(Label_vector * arr, char * name);
+int Label_vector_search(Label_vector * vect, char * name);
 
-void Label_deconstruct(Label_vector * arr);
+void Label_deconstruct(Label_vector * vect);
 
 #endif
