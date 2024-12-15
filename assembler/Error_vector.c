@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
 #include "Error_vector.h"
 
 #define VECTOR_INITIAL_LENGTH 25
@@ -34,6 +35,16 @@ Error * Error_vector_create_error(Error_vector ** vect, char err_code, unsigned 
     (*vect)->arr[(*vect)->count] = error;
 
     return error;
+}
+
+static inline void display_err(Error * err){
+    fprintf(stderr, "In line %d:\n%s\nError no. %d: %s.\n\n", err->line_no, err->src_line, err->err_code, err_codes[err->err_code]);
+}
+
+void Error_vector_display(Error_vector * errors){
+    for (int i = 0; i < errors->count; i++){
+        display_err(errors->arr[i]);
+    }
 }
 
 void Error_vector_deconstruct(Error_vector * vect){

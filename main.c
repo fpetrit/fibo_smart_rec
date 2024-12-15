@@ -3,8 +3,7 @@
 
 #include "assembler/assembler.h"
 #include "runtime/runtime.h"
-#include "assembler/opstring_mapping.h"
-
+#include "Label_vector.c"
 
 int main(int argc, char ** argv){
 
@@ -36,26 +35,20 @@ int main(int argc, char ** argv){
 
     // parsing and assembling
 
-    Assembly_response response;
-    response.src_line[0] = '\0';
-    assemble(src, output, &response);
+    Label_vector * labels = Label_vector_construct();
 
-    // test the error code and display if error
+    unsigned char response = parse(src, &labels);
 
-    if (response.response_code != 0){
-        print_response(&response);
-        fclose(src);
-        fclose(output);
-        return 1;
-    }
+    void assemble(src, output, &labels);
 
     // close source file
 
     fclose(src);
 
-    // if no error, begin execution of ./hexa.txt
+    // if no error (response is 0), begin execution of ./hexa.txt
 
-    // run(output);
+    if (response == 0)
+        run(output);
 
     // close output file
 

@@ -2,19 +2,9 @@
 #define ASSEMBLER_H
 
 #include <stdio.h>
-#include "preprocessor_consts.h"
 
-typedef struct {
+void assemble(FILE * src, FILE * output, Label_vector ** labels);
 
-    unsigned char response_code;
-    int line_no;
-    char src_line[SRC_LINE_CHAR_MAX_NO];
-
-} Assembly_response ;
-
-
-void assemble(FILE * src, FILE * output, Assembly_response * response);
-
-void print_response(Assembly_response * response);
+unsigned char parse(FILE * src, Label_vector ** labels);
 
 #endif

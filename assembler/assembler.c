@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <assembler.h>
+#include "preprocessor_consts.h"
+#include "Label_vector.h"
+#include "Error_vector.h"
 
 /**
  * opstring are stored in signed char (1 byte)
@@ -22,17 +24,7 @@
  */
 
 // unsigned char range : [0, 255]
-const char * responses_codes[] = {
-    "assembling succeeded",    // 0
-    "no data in source file", // 1
-    
-} ;
 
-void print_response(Assembly_response * r){
-
-    fprintf(stderr, "In line %d:\n%s\nError no. %d: %s.", r->line_no, r->src_line, r->response_code, responses_codes[r->response_code]);
-    
-}
 
 /** SIGNED / UNSIGNED INTEGERS HEXA CONVERSION
  *
@@ -69,56 +61,69 @@ static void decimal_to_hex_string(unsigned char n, char s[]){
 
 /** returns a response code, verifiy coherence & syntax, do all the verifications
  * must set label, opcode, operand to NULL if not present in the line
+ * must check all the constant limits
  * 
  * is syntax correct ?
  * 
  * if opstring is jmp, jnz, call, is the operand a label and does the label exists
  * we suppose that we cannot reference a label that has not been defined in the previous lines
  */
-static unsigned char get_from_line(char * src_line, char * label, unsigned char * opcode, signed short * operand);
+static unsigned char get_from_line(Error_vector ** errors, char * src_line, char * label, char * opstring, signed short * operand);
 
-void assemble(FILE * src, FILE * output, Assembly_response * final_response){
+static void check_labels(Label_vector * labels, Error_vector ** errors);
 
-    char current_line[SRC_LINE_MAX_LEN + 1];
-    char current_label[LABEL_MAX_CHAR_NO + 1];
-    unsigned char current_opcode;
-    signed short current_operand;
+static void check_opstring_operand(Error_vector ** errors, char * opstring, unsigned short operand);
 
-    char hexa_opcode[3];
-    char hexa_operand[6];
+// print all the line-level errors
+// check and print file-level errors line (e.g. labels, constant limits)
+// constructs a Label_arr structure and check its coherence
+// for the moment the caller is responsible for the lables array to be large enough
+// replaces the file position indicator at begining of the file
+unsigned char parse(FILE * src, Label_vector ** labels){
 
-    unsigned char response_code = 0;
+    char line[SRC_LINE_MAX_LEN + 1];
+    unsigned int line_no = 0;
+    int line_len = 0;
+    char label[LABEL_MAX_CHAR_NO + 1];
+    char opstring[OPSTRING_MAX_LENGTH + 1];
+    signed short operand;
+    unsigned int address = 0;
+    char opcode;
 
-    final_response->line_no = 0;
-    final_response->response_code = 1; // no data in source file
-    // current_line is copied at final_response->src_line only in case of error
+    line[0] = '\0';
 
-    // at most SRC_LINE_MAX_LEN bytes are read from src (& a null byte is appended)
-    fgets(current_line, SRC_LINE_MAX_LEN + 1, src);
+    Error_vector * errors = Error_vector_construct();
 
-    while ( response_code == 0 && feof(src) == 0 ){
+    // empty source file
+    if ( feof(src) != 0 )
+        Error_vector_create_error(&errors, 1, line_no, line, line_len);
 
-        response_code = get_from_line(current_line, current_label, &current_opcode, &current_operand);
+    while ( feof(src) == 0){
 
-        final_response->line_no++;
-        // final_response->response_code is already 0
-        // no need to copy current_line into final_response
+        line_no++;
 
-        if ( response_code == 0 ){
+        fgets(line, SRC_LINE_MAX_LEN + 1, src);
 
-            // if label is set, create a label (name + adress) and store it for further use
+        get_from_line(&errors, line, label, opstring, &operand);
 
-            // if opstring is jmp (5), jnz (6), or call (7), calculate the hexa_operand (adress difference)
+        if (opstring)
+            address++;
 
-            // if opcode is not NULL, put hexa in output, if hexa_operand is not set, just convert current_operand to hexa
-            // if NULL, do nothing this is a blank line
+        check_opstring_operand(&errors, opstring, operand);
 
-        } else {
-
-            strcpy(final_response->src_line, current_line);
-            final_response->response_code = response_code;
-            // this is the last iteration, the function returns
+        if ( label ){
+            Label_vector_create_label(labels, label, address);
         }
+
+        
     }
+
+    check_labels(* labels, &errors);
+    
+    Error_vector_display(errors);
+    
+    return errors->count;
 }
 
+// can call this functions only if there is no error
+void assemble(FILE * src, FILE * output, Label_vector ** labels);
