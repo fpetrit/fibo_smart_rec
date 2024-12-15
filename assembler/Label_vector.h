@@ -22,6 +22,6 @@ Label * Label_vector_create_label(Label_vector ** vect, char * name, unsigned in
 
 int Label_vector_search(Label_vector * vect, char * name);
 
-void Label_deconstruct(Label_vector * vect);
+void Label_vector_deconstruct(Label_vector * vect);
 
 #endif
