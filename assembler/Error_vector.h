@@ -2,9 +2,16 @@
 #define ERROR_VECTOR
 
 const char * err_codes[] = {
-    "assembling succeeded",    // 0
-    "no data in source file", // 1
-    
+    "assembling succeeded",                             // 0
+    "no data in source file",                           // 1
+    "this is not a valid opstring",                     // 2
+    "no operand is expected for this opstring",         // 3
+    "an operand is expexted for this opstring",         // 4
+    "wrong operand type for this opstring",             // 5
+    "label has not been declared",                      // 6
+    "wrong syntax",                                     // 7
+    "please declare the label in front of an opstring", // 8
+    "the label cannot be an empty string",              // 9
 } ;
 
 typedef struct {

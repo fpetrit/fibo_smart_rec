@@ -6,5 +6,6 @@
 #define LABEL_MAX_LEN               30
 #define LABEL_MAX_NO                60
 #define OPSTRING_MAX_LENGTH         5
+#define MAX_ERROR_NO                5
 
 #endif

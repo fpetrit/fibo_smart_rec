@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <math.h>
 #include "preprocessor_consts.h"
 #include "Label_vector.h"
 #include "Error_vector.h"
@@ -17,8 +16,9 @@
  * the representation in memory is two's complement
  * range -2^(n-1) to 2^(n-1) - 1
  * [-32768, 32767] in normal decimal
- * [-8000, 7FFF]    in normal hexadecimal (not two's complement)
- * we need at most 5 characters (strings of length 6) to print it in the hexa output file
+ * [8000, 7FFF]    in two's complement hexadecimal
+ * we need at most 4 characters
+ * so char str[5]
  * 
  * the instructions number is less than 500
  * the adress n: jmp <etiq> instruction operand is the difference n - <etiq>
@@ -31,42 +31,29 @@
 /** SIGNED / UNSIGNED INTEGERS HEXA CONVERSION
  *
  * the string argument shoud be at least of length:
- * - 6 (a possible minus sign, 4 digits, a null byte) for operands value conversion (signed short)
- * - 3 (2 digits, a null byte) for opcode conversion (unsigned char)
+ * - 5 for operand in hexa
+ * - 3 (2 digits, a null byte) for an opcode
  */
-static void decimal_to_hex_string(signed short n, char s[]){
-
-    char sign[2] = "";
-
-    if (n < 0)
-        sign[0] = '-';
-
-    sprintf(s, "%s%0.4x", sign, abs( (int)n) );
+static inline void decimal_to_hex_string(signed short n, char * s){
+    sprintf(s, "%0.4x", n);
 }
 
-static void decimal_to_hex_string(unsigned char n, char * s){
-    sprintf(s, "0.4x", n);
+static inline void decimal_to_hex_string(unsigned char n, char * s){
+    sprintf(s, "%0.4x", n);
 }
 
 static inline void short_to_str(signed short number, char * s){
     sprintf(s, "%d", number);
 }
 
+static inline int len(char * s){
+    int i = 0;
+    while (s[i] != '\0'){
+        i++;
+    }
+    return i;
+}
 
-/** returns a response code, verifiy coherence & syntax, do all the verifications
- * must set label, opcode, operand to NULL if not present in the line
- * must check all the constant limits
- * 
- * is syntax correct ?
- * 
- * if opstring is jmp, jnz, call, is the operand a label and does the label exists
- * we suppose that we cannot reference a label that has not been defined in the previous lines
- */
-static unsigned char get_from_line(Error_vector ** errors, char ** src_line, char ** label, char ** opstring, signed short * operand);
-
-static void check_labels(Label_vector * labels, Error_vector ** errors);
-
-static void check_opstring_operand(Error_vector ** errors, char * opstring, unsigned short operand);
 
 unsigned char parse(FILE * src, Label_vector ** labels){
 
@@ -92,18 +79,21 @@ unsigned char parse(FILE * src, Label_vector ** labels){
     if ( feof(src) != 0 )
         Error_vector_create_error(&errors, 1, line_no, line, line_len);
 
-    while ( feof(src) == 0){
+    while ( feof(src) == 0 && errors->count <= MAX_ERROR_NO){
 
         line_no++;
 
+        // the last non NULL char is '\n' if no eof
         fgets(line, SRC_LINE_MAX_LEN + 1, src);
+
+        line_len = len(line);
 
         // GETTING DATA AND CHECKING SYNTAX ERRORS
 
-        get_from_line(&errors, &line, &label, &opstring, &operand_short);
+        bool skip = get_from_line(&errors, line, line_no, line_len, label, opstring, &opcode, &operand_short);
 
-        // if opstring is NULL, blank line or syntax error, we ignore
-        if (opstring){
+        // if opstring is NULL, blank line or syntax error or alone label, we ignore
+        if (! skip){
         
             address++;
 
