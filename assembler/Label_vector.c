@@ -18,19 +18,19 @@ Label_vector * Label_vector_construct(){
     return res;
 }
 
-Label * Label_vector_create_label(Label_vector ** vect, char * name, unsigned int address){
+Label * Label_vector_create_label(Label_vector * vect, char * name, unsigned int address){
 
     Label * label = malloc(sizeof(Label));
     label->name = name;
     label->address = address;
 
-    if ((*vect)->count == (*vect)->length){
-        (*vect)->length = new_length((*vect)->length);
-        *vect = realloc(*vect, sizeof(Label *) * (*vect)->length);
+    if (vect->count == vect->length){
+        vect->length = new_length(vect->length);
+        vect->arr = realloc(vect->arr, sizeof(Label *) * vect->length);
     }
 
-    (*vect)->count++;
-    (*vect)->arr[(*vect)->count] = label;
+    vect->count++;
+    vect->arr[vect->count] = label;
 
     return label;
 }
