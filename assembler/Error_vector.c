@@ -18,7 +18,7 @@ Error_vector * Error_vector_construct(){
     return res;
 }
 
-Error * Error_vector_create_error(Error_vector ** vect, char err_code, unsigned int line_no, char * src_line, int src_line_len){
+Error * Error_vector_create_error(Error_vector * vect, char err_code, unsigned int line_no, char * src_line, int src_line_len){
 
     Error * error = malloc(sizeof(Error));
     error->err_code = err_code;
@@ -26,13 +26,13 @@ Error * Error_vector_create_error(Error_vector ** vect, char err_code, unsigned 
     error->src_line = malloc(sizeof(char) * (src_line_len + 1));
     strcpy(error->src_line, src_line);
 
-    if ((*vect)->count == (*vect)->length){
-        (*vect)->length = new_length((*vect)->length);
-        *vect = realloc(*vect, sizeof(Error *) * (*vect)->length);
+    if (vect->count == vect->length){
+        vect->length = new_length(vect->length);
+        vect->arr = realloc(vect->arr, sizeof(Error *) * vect->length);
     }
 
-    (*vect)->count++;
-    (*vect)->arr[(*vect)->count] = error;
+    vect->count++;
+    vect->arr[vect->count] = error;
 
     return error;
 }

@@ -10,7 +10,6 @@ const char * err_codes[] = {
     "wrong operand type for this opstring",             // 5
     "label has not been declared",                      // 6
     "wrong syntax",                                     // 7
-    "please declare the label in front of an opstring", // 8
     "the label cannot be an empty string",              // 9
 } ;
 
@@ -32,7 +31,7 @@ typedef struct {
 
 Error_vector * Error_vector_construct();
 
-Error * Error_vector_create_error(Error_vector ** vect, char err_code, unsigned int line_no, char * src_line, int src_line_len);
+Error * Error_vector_create_error(Error_vector * vect, char err_code, unsigned int line_no, char * src_line, int src_line_len);
 
 void Error_vector_deconstruct(Error_vector * vect);
 
