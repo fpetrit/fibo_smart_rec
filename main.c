@@ -35,11 +35,13 @@ int main(int argc, char ** argv){
 
     // parsing and assembling
 
+    // allocated as a main() local var because usefull for 3 underlying func : parse, assemble & run
     Label_vector * labels = Label_vector_construct();
 
-    unsigned char response = parse(src, &labels);
+    // non zero if any error occured
+    int response = parse(src, labels);
 
-    void assemble(src, output, &labels);
+    void assemble(src, output, labels);
 
     // close source file
 

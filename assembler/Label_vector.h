@@ -5,6 +5,7 @@ typedef struct {
 
     char * name;
     unsigned int address;
+    int line_no;
 
 } Label ;
 
