@@ -2,6 +2,9 @@
 
 .vscode
 *.txt
+test.c
+simulateur
+test
 
 # Prerequisites
 *.d

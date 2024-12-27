@@ -2,8 +2,8 @@
 #include <stdlib.h>
 
 #include "assembler/assembler.h"
+#include "assembler/Label_vector.h"
 #include "runtime/runtime.h"
-#include "Label_vector.c"
 
 int main(int argc, char ** argv){
 
@@ -41,7 +41,8 @@ int main(int argc, char ** argv){
     // non zero if any error occured
     int response = parse(src, labels);
 
-    void assemble(src, output, labels);
+    // if (response == 0)
+    //     assemble(src, output, labels);
 
     // close source file
 
@@ -49,8 +50,8 @@ int main(int argc, char ** argv){
 
     // if no error (response is 0), begin execution of ./hexa.txt
 
-    if (response == 0)
-        run(output);
+    // if (response == 0)
+    //     run(output);
 
     // close output file
 

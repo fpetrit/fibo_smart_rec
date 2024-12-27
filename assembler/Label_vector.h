@@ -1,11 +1,11 @@
-#ifndef LABEL_VECTOR
-#define LABEL_VECTOR
+#ifndef LABEL_VECTOR_H
+#define LABEL_VECTOR_H
 
 typedef struct {
 
     char * name;
     unsigned int address;
-    int line_no;
+    unsigned int line_no;
 
 } Label ;
 
@@ -19,7 +19,7 @@ typedef struct {
 
 Label_vector * Label_vector_construct();
 
-Label * Label_vector_create_label(Label_vector * vect, char * name, unsigned int address);
+Label * Label_vector_create_label(Label_vector * vect, char * name, unsigned int address, int line_no);
 
 int Label_vector_search(Label_vector * vect, char * name);
 

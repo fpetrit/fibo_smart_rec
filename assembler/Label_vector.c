@@ -5,7 +5,7 @@
 
 #define VECTOR_INITIAL_LENGTH 25
 
-static inline new_length(int length){
+static inline int new_length(int length){
     return 2*length;
 }
 
@@ -38,8 +38,6 @@ Label * Label_vector_create_label(Label_vector * vect, char * name, unsigned int
 
 int Label_vector_search(Label_vector * vect, char * name){
 
-    int res;
-
     int i = 0;
     bool found = 0;
     while (! found && i < vect->count){
@@ -47,7 +45,7 @@ int Label_vector_search(Label_vector * vect, char * name){
         i++;
     }
 
-    res = (found) ? i - 1 : -1;
+    return found ? i - 1 : -1;
 }
 
 void Label_deconstruct(Label_vector * vect){

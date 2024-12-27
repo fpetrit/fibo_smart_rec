@@ -1,5 +1,5 @@
-#ifndef OPSTRING_HASH_H
-#define OPSTRING_HASH_H
+#ifndef OPSTRING_MAPPING_H
+#define OPSTRING_MAPPING_H
 
 #include <stdlib.h>
 
