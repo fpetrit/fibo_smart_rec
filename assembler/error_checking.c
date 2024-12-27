@@ -37,7 +37,7 @@ static inline void read_word(char * word_tmp, char ** line_tmp_p, int * word_tmp
 
     skip_whitespaces_tab(line_tmp_p, line_tmp_len);
 
-    sscanf(*line_tmp_p, "%[^:\t ]%n", word_tmp, word_tmp_len);
+    sscanf(*line_tmp_p, "%[^\t ]%n", word_tmp, word_tmp_len);
     *line_tmp_p += *word_tmp_len;
     *line_tmp_len -= *word_tmp_len;
 }
@@ -159,7 +159,7 @@ bool is_signed_short(char * s, int len){
 
     // empty, or do not only contain digits, or long overflow error, or long to signed short cast overflow error
     // we must check ERANGE, not only signed short int limits
-    res = (*s != '\0' && endptr == s+len-1 && errno != ERANGE && SHRT_MIN <= number && number <= SHRT_MAX);
+    res = (*s != '\0' && *endptr == '\0' && errno != ERANGE && SHRT_MIN <= number && number <= SHRT_MAX);
     
     return res;
 }
