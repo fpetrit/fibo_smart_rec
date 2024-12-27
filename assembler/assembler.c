@@ -29,7 +29,7 @@ int parse(FILE * src, Label_vector * labels){
     unsigned char opcode;
 
     unsigned int line_no = 0;
-    unsigned int address = 0;
+    unsigned int address = -1;
     int tmp;
     bool skip;
 
