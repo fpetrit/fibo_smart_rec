@@ -18,8 +18,10 @@ static const unsigned char opcode_arg[15] = {1, 0, 1, 0, 1, 2, 2, 2, 0, 1, 1, 1,
 
 static void skip_whitespaces_tab(char ** s, int * len){
     while (  **s != '\0' && (**s == '\t' || **s == ' ' ) ){
-        *s++;
-        *len--;
+
+        // !!! be carefull of operators precedence (segmentation fault)
+        (*s)++;
+        (*len)--;
     }
 }
 
