@@ -37,7 +37,7 @@ static inline void read_word(char * word_tmp, char ** line_tmp_p, int * word_tmp
 
     skip_whitespaces_tab(line_tmp_p, line_tmp_len);
 
-    sscanf(word_tmp, "%[^:\t ]%n", *line_tmp_p, word_tmp_len);
+    sscanf(*line_tmp_p, "%[^:\t ]%n", word_tmp, word_tmp_len);
     *line_tmp_p += *word_tmp_len;
     *line_tmp_len -= *word_tmp_len;
 }
