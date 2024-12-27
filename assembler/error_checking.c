@@ -28,7 +28,7 @@ static void skip_whitespaces_tab(char ** s, int * len){
 static void remove_final_new_line(char * s, int * len){
     if (*len > 0 && s[*len - 1] == '\n'){
             s[*len - 1] = '\0';
-            *len--;
+            (*len)--;
         }
 }
 
@@ -81,7 +81,7 @@ bool check_line(Cheking_infos * infos, char * label, char * opstring, char * ope
     char word_tmp[LABEL_MAX_LEN];
     int word_tmp_len = 0;
 
-    int line_tmp_len = *infos->len;
+    int line_tmp_len = *(infos->len);
 
     // initialize to error/empty values
     opstring[0] = '\0';
