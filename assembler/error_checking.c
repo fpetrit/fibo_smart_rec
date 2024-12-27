@@ -35,6 +35,10 @@ static void remove_final_new_line(char * s, int * len){
 
 static inline void read_word(char * word_tmp, char ** line_tmp_p, int * word_tmp_len, int * line_tmp_len){
 
+    // if *line_tmp_p is empty, word_tmp should not contain anything (from previous usage)
+    *word_tmp_len = '\0';
+    word_tmp_len = 0;
+
     skip_whitespaces_tab(line_tmp_p, line_tmp_len);
 
     sscanf(*line_tmp_p, "%[^\t ]%n", word_tmp, word_tmp_len);
