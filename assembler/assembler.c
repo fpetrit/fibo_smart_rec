@@ -31,6 +31,7 @@ int parse(FILE * src, Label_vector * labels){
     unsigned int line_no = 0;
     unsigned int address = 0;
     int tmp;
+    bool skip;
 
     // Buffer initialization
 
@@ -64,7 +65,7 @@ int parse(FILE * src, Label_vector * labels){
 
         // check_line returns a bool indicating if we should check other errors
         // may not be the case because of empty line, syntax error...
-        bool skip = check_line(&infos, label, opstring, operand);
+        skip = check_line(&infos, label, opstring, operand);
 
         // if the line is correct and contains data
         if (! skip){
@@ -121,6 +122,8 @@ int parse(FILE * src, Label_vector * labels){
             }
         }
 
+    skip = false;
+
     } // end of while loop
 
     if (! infos.error)
@@ -128,7 +131,8 @@ int parse(FILE * src, Label_vector * labels){
 
     fseek(src, 0, SEEK_SET);
 
-    display_err(infos.error);
+    if ( infos.error )
+        display_err(infos.error);
 
     // free the Error s in the Error_array
     bool res = infos.error != NULL;
