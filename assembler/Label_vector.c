@@ -30,8 +30,8 @@ Label * Label_vector_create_label(Label_vector * vect, char * name, unsigned int
         vect->arr = realloc(vect->arr, sizeof(Label *) * vect->length);
     }
 
-    vect->count++;
     vect->arr[vect->count] = label;
+    vect->count++;
 
     return label;
 }
@@ -41,10 +41,8 @@ int Label_vector_search(Label_vector * vect, char * name){
     int i = 0;
     bool found = 0;
     while (! found && i < vect->count){
-        // (*vect->arr) is a Label * (adress of the first Label in the array)
-        // parenthesis are necessary because of [] operator higher precedence
-        // we use [] on a Label * to add i bytes to the first adress and dereference it: the result is a Label (must use . operator)
-        found = (! strcmp( (*vect->arr)[i].name, name) );
+        // arr is an array of Label * (aka Label **), can use [] on it
+        found = (! strcmp( vect->arr[i]->name, name) );
         i++;
     }
 
