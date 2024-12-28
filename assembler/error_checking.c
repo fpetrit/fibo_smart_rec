@@ -150,6 +150,8 @@ void check_labels(Cheking_infos * infos, Label_vector * labels)
         if (labels->arr[i]->address == -1){
             set_error(infos, 6);
         }
+
+        i++;
     }
 }
 
