@@ -18,7 +18,7 @@ Label_vector * Label_vector_construct(){
     return res;
 }
 
-Label * Label_vector_create_label(Label_vector * vect, char * name, unsigned int address, int line_no){
+Label * Label_vector_create_label(Label_vector * vect, char * name, int address, int line_no){
 
     Label * label = malloc(sizeof(Label));
     label->name = name;
