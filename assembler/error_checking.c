@@ -209,7 +209,13 @@ bool check_opcode_operand(Cheking_infos * infos, unsigned char opcode, char * op
             }
             break;
 
-        // case 2: nothing to verify, checked in assemble()
+        case 2:
+        // if not a signed short, will be interpreted as a label, if label not declared, error during check_labels()
+        // problem: surprising behavior like long int can be interpreted as label
+            if ( ! operand_len ){
+                skip = true;
+                set_error(infos, 4);
+            }
         }
     }
 
