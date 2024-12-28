@@ -21,7 +21,7 @@ Label_vector * Label_vector_construct(){
 Label * Label_vector_create_label(Label_vector * vect, char * name, int address, int line_no){
 
     Label * label = malloc(sizeof(Label));
-    label->name = name;
+    strcpy(label->name, name);
     label->address = address;
     label->line_no = line_no;
 

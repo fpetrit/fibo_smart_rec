@@ -1,9 +1,11 @@
 #ifndef LABEL_VECTOR_H
 #define LABEL_VECTOR_H
 
+#include "../constants.h"
+
 typedef struct {
 
-    char * name;
+    char name[LABEL_MAX_LEN + 1];
     int address;
     unsigned int line_no;
 
