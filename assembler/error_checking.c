@@ -35,13 +35,14 @@ static void remove_final_new_line(char * s, int * len){
 
 static inline void read_word(char * word_tmp, char ** line_tmp_p, int * word_tmp_len, int * line_tmp_len){
 
-    // if *line_tmp_p is empty, word_tmp should not contain anything (from previous usage)
-    *word_tmp_len = '\0';
-    word_tmp_len = 0;
-
     skip_whitespaces_tab(line_tmp_p, line_tmp_len);
 
     sscanf(*line_tmp_p, "%[^\t ]%n", word_tmp, word_tmp_len);
+
+    // sscanf fais n'importe quoi ? ne met pas *word_tmp_len à 0 si l'input est vide
+    if (**line_tmp_p == '\0')
+        *word_tmp_len = 0;
+
     *line_tmp_p += *word_tmp_len;
     *line_tmp_len -= *word_tmp_len;
 }
@@ -88,8 +89,10 @@ bool check_line(Cheking_infos * infos, char * label, char * opstring, char * ope
     int line_tmp_len = *(infos->len);
 
     // initialize to error/empty values
+    // very important
     opstring[0] = '\0';
     label[0] = '\0';
+    operand[0] = '\0';
 
     remove_final_new_line(line_tmp_p, &line_tmp_len);
 
@@ -116,6 +119,8 @@ bool check_line(Cheking_infos * infos, char * label, char * opstring, char * ope
 
             // read the operand (char *)
             read_word(word_tmp, &line_tmp_p, &word_tmp_len, &line_tmp_len);
+            // this test is really important because word_tmp can contain previous read words if no operand present
+            // read word set word_tmp_len to 0 if nothing in line_tmp_p
             if (word_tmp_len != 0){
                 strcpy(operand, word_tmp);
             }
