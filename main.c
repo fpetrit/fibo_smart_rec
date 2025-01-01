@@ -35,7 +35,6 @@ int main(int argc, char ** argv){
 
     // parsing and assembling
 
-    // allocated as a main() local var because usefull for 3 underlying func : parse, assemble & run
     Label_vector * labels = Label_vector_construct();
 
     // non zero if any error occured
@@ -46,12 +45,12 @@ int main(int argc, char ** argv){
 
     fclose(src);
 
+    Label_vector_deconstruct(labels);
+
     // if no error (response is 0), begin execution of ./hexa.txt
 
     // if (response == 0)
     //     run(output);
-
-    // close output file
 
     fclose(output);
 
