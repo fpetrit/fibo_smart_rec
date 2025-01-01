@@ -49,11 +49,12 @@ int Label_vector_search(Label_vector * vect, char * name){
     return found ? i - 1 : -1;
 }
 
-void Label_deconstruct(Label_vector * vect){
+void Label_vector_deconstruct(Label_vector * vect){
 
     int i = 0;
     while (i < vect->count){
         free(vect->arr[i]);
+        i++;
     }
 
     free(vect);
