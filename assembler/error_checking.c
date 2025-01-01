@@ -133,7 +133,7 @@ void check_line(char * label, char * opstring, char * operand) {
 
 void check_labels(Label_vector * labels)
 {
-    infos.line = '\0';
+    *infos.line = '\0';
 
     int i = 0;
     while ( i < labels->count && ! infos.error.err_code) {
