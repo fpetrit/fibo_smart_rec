@@ -6,18 +6,15 @@
 
 static const char * err_codes[] = {
     "assembling succeeded",                                     // 0
-    "no data in source file",                                   // 1  remove
-    "this is not a valid opstring",                             // 2
-    "no operand is expected for this opstring",                 // 3
-    "an operand is expexted for this opstring",                 // 4
-    "wrong operand type for this opstring",                     // 5  remove
-    "label has not been declared",                              // 6
-    "wrong syntax",                                             // 7
-    "operand must be a signed short",                           // 8
-    "invalid label name",                                       // 9
-    "this is not a valid operand",                              // 10
-    "label already defined",                                    // 11
-    "operand must be a signed short or a label",                // 12
+    "this is not a valid opstring",                             // 1
+    "no operand is expected for this opstring",                 // 2
+    "an operand is expexted for this opstring",                 // 3
+    "label has not been declared",                              // 4
+    "wrong syntax",                                             // 5
+    "operand must be a signed short",                           // 6
+    "invalid label name",                                       // 7
+    "label already defined",                                    // 8
+    "operand must be a signed short or a label",                // 9
 } ;
 
 extern Cheking_infos infos;
