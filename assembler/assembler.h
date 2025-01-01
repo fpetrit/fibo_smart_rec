@@ -11,11 +11,11 @@
  * - 3 (2 digits, a null byte) for an opcode
  */
 static inline void short_to_hex_string(signed short n, char * s){
-    sprintf(s, "%.4x", n);
+    sprintf(s, "%4.4hx", n);
 }
 
 static inline void uchar_to_hex_string(unsigned char n, char * s){
-    sprintf(s, "%.2x", n);
+    sprintf(s, "%2.2hhx", n);
 }
 
 static inline void short_to_str(signed short number, char * s){
