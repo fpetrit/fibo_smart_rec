@@ -211,11 +211,10 @@ void assemble(FILE * src, FILE * output, Label_vector * labels){
                         short_to_hex_string(diff, operand_hex);
                         fprintf(output, " %s", operand_hex);
                     }
-
-                    else if (*operand == '\0' ){
-                        fprintf(output, " 0000");
-                    }
                 }
+                
+                else 
+                    fprintf(output, " 0000");
             }
         }
     }
