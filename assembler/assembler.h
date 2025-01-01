@@ -15,7 +15,7 @@ static inline void short_to_hex_string(signed short n, char * s){
 }
 
 static inline void uchar_to_hex_string(unsigned char n, char * s){
-    sprintf(s, "%.4x", n);
+    sprintf(s, "%.2x", n);
 }
 
 static inline void short_to_str(signed short number, char * s){

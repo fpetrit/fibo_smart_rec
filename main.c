@@ -41,10 +41,8 @@ int main(int argc, char ** argv){
     // non zero if any error occured
     int response = parse(src, labels);
 
-    // if (response == 0)
-    //     assemble(src, output, labels);
-
-    // close source file
+    if (response == 0)
+        assemble(src, output, labels);
 
     fclose(src);
 

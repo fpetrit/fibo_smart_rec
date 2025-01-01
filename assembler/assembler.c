@@ -14,16 +14,16 @@
 regex_t label_regex;
 Cheking_infos infos;
 
-void init(void){
+void init_label_regex(void){
     regcomp(&label_regex, LABEL_PATTERN, REG_NOSUB);
 }
 
 
 int parse(FILE * src, Label_vector * labels){
 
-    // Buffers declaration
+    init_label_regex();
 
-    init();
+    fseek(src, 0, SEEK_SET);
 
     char line[LINE_MAX_LEN + 1];
     int length;
@@ -59,16 +59,14 @@ int parse(FILE * src, Label_vector * labels){
 
         // GETTING DATA AND CHECKING SYNTAX ERRORS
 
-        // check_line returns a bool indicating if we should check other errors
-        // may not be the case because of empty line, syntax error...
-        check_line(label, opstring, operand);
+        extract_line(true, label, opstring, operand);
 
         // if the line is correct and contains data
         if (! infos.skip){
 
             operand_len = len(operand);
 
-            if (opstring[0]){
+            if (*opstring){
 
                 address++;
                 opcode = opstring_to_opcode(opstring, len(opstring));
@@ -106,7 +104,7 @@ int parse(FILE * src, Label_vector * labels){
 
                     // label has already been defined, else we can assign address
                     if (labels->arr[tmp]->address != -1){
-                        set_error(11, labels->arr[tmp]->name);
+                        set_error(6, labels->arr[tmp]->name);
                     } else {
                         labels->arr[tmp]->address = address;
                     }
@@ -125,8 +123,6 @@ int parse(FILE * src, Label_vector * labels){
     if (! infos.error.err_code)
         check_labels(labels);
 
-    fseek(src, 0, SEEK_SET);
-
     if ( infos.error.err_code )
         display_err();
 
@@ -138,4 +134,92 @@ int parse(FILE * src, Label_vector * labels){
 }
 
 // can call this functions only if there is no error
-// void assemble(FILE * src, FILE * output, Label_vector ** labels);
+void assemble(FILE * src, FILE * output, Label_vector * labels){
+
+    init_label_regex();
+
+    fseek(src, 0, SEEK_SET);
+    fseek(output, 0, SEEK_SET);
+
+    char line[LINE_MAX_LEN + 1];
+    int length;
+    unsigned int line_no = 0;
+    int address = -1;
+
+    char label[LABEL_MAX_LEN + 1];
+    char opstring[OPSTRING_MAX_LENGTH + 1];
+    char operand[LABEL_MAX_LEN];
+    int operand_len;
+    signed short operand_short;
+    unsigned char opcode;
+
+    char opcode_hex[3];
+    char operand_hex[5];
+
+    length = 0;
+    line[0] = '\0';
+
+    int tmp;
+    signed short diff;
+
+    infos.line = line;
+    infos.len = &length;
+    infos.line_no = &line_no;
+
+    while ( ! feof(src) ){
+
+        infos.skip = false;
+
+        line_no++;
+
+        fgets(line, LINE_MAX_LEN + 1, src);
+
+        length = len(line);
+
+        extract_line(false, label, opstring, operand);
+
+        if (! infos.skip){
+
+            operand_len = len(operand);
+
+            if ( *opstring ){
+
+                address++;
+
+                if (address)
+                    fprintf(output, "\n");
+
+                opcode = opstring_to_opcode(opstring, len(opstring));
+                uchar_to_hex_string(opcode, opcode_hex);
+
+                fprintf(output, "%s", opcode_hex);
+
+                if ( *operand ){
+
+                    if ( is_signed_short(operand, operand_len) ){
+
+                        operand_short = (signed short) strtol(operand, NULL, 10);
+                        short_to_hex_string(operand_short, operand_hex);
+
+                        fprintf(output, " %s", operand_hex);
+                    }
+
+                    else if ( regexec(&label_regex, operand, 0, NULL, 0) == 0 ){
+                        tmp = Label_vector_search(labels, operand);
+                        // implicit cast, no error ?
+                        diff = labels->arr[tmp]->address - address - 1;
+                        short_to_hex_string(diff, operand_hex);
+                        fprintf(output, " %s", operand_hex);
+                    }
+
+                    else if (*operand == '\0' ){
+                        fprintf(output, " 0000");
+                    }
+                }
+            }
+        }
+    }
+
+    regfree(&label_regex);
+
+    }

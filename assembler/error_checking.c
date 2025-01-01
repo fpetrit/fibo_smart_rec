@@ -51,7 +51,7 @@ static inline void read_word(char * word_tmp, char ** line_tmp_p, int * word_tmp
 }
 
 
-static void extract_label(char * label, char * word_tmp, int word_tmp_len){
+static void extract_label(bool verif, char * label, char * word_tmp, int word_tmp_len){
 
     if ( word_tmp_len != 0 ){
         
@@ -60,8 +60,8 @@ static void extract_label(char * label, char * word_tmp, int word_tmp_len){
 
             word_tmp[word_tmp_len - 1] = '\0';
 
-            if ( regexec(&label_regex, word_tmp, 0, NULL, 0) == REG_NOMATCH ){
-                set_error(9, word_tmp);
+            if ( verif && regexec(&label_regex, word_tmp, 0, NULL, 0) == REG_NOMATCH ){
+                set_error(7, word_tmp);
                 infos.skip = true;
             }
 
@@ -72,49 +72,41 @@ static void extract_label(char * label, char * word_tmp, int word_tmp_len){
 }
 
 
-void check_line(char * label, char * opstring, char * operand) {
+void extract_line(bool verif, char * label, char * opstring, char * operand) {
         
     char line_tmp[LINE_MAX_LEN];
     strcpy(line_tmp, infos.line);
+    int line_tmp_len = *(infos.len);
 
-    // a char * variable can be incremented
     char * line_tmp_p = line_tmp;
 
     char word_tmp[LABEL_MAX_LEN];
     int word_tmp_len = 0;
 
-    int line_tmp_len = *(infos.len);
-
-    // initialize to error/empty values
-    // very important
     opstring[0] = '\0';
     label[0] = '\0';
     operand[0] = '\0';
 
     remove_final_new_line(line_tmp_p, &line_tmp_len);
 
-    // get the first word, opstring or label ?   
     read_word(word_tmp, &line_tmp_p, &word_tmp_len, &line_tmp_len);
 
     if ( word_tmp_len != 0){
 
-        extract_label(label, word_tmp, word_tmp_len);
+        extract_label(verif, label, word_tmp, word_tmp_len);
 
         if ( ! infos.skip ) {
             
-            // if we have read a label, must read more to get opstring
             if ( *label != '\0' ){
                 read_word(word_tmp, &line_tmp_p, &word_tmp_len, &line_tmp_len);
             }
 
-            // if opstring, copy, else do nothing
-            // will be check by check_opcode_operand()
             if (word_tmp_len != 0){
                 strcpy(opstring, word_tmp);
             }
 
-            // read the operand (char *)
             read_word(word_tmp, &line_tmp_p, &word_tmp_len, &line_tmp_len);
+
             // this test is really important because word_tmp can contain previous read words if no operand present
             // read word set word_tmp_len to 0 if nothing in line_tmp_p
             if (word_tmp_len != 0){
@@ -123,10 +115,15 @@ void check_line(char * label, char * opstring, char * operand) {
 
             skip_whitespaces_tab(&line_tmp_p, &line_tmp_len);
 
-            if (line_tmp_len != 0){
-                set_error(7, "");
+            if (verif && line_tmp_len != 0){
+                set_error(5, "");
+                infos.skip = true;
             }
         }
+    }
+
+    else {
+        infos.skip = true;
     }
 }
 
@@ -142,7 +139,7 @@ void check_labels(Label_vector * labels)
 
         // il label address have never been set, label never been declared but used, error
         if (labels->arr[i]->address == -1){
-            set_error(6, labels->arr[i]->name);
+            set_error(3, labels->arr[i]->name);
         }
 
         i++;
@@ -186,7 +183,7 @@ void check_opcode_operand(unsigned char opcode, char * operand, int operand_len)
         {
         case 0:
             if (operand_len){
-                set_error(3, "");
+                set_error(2, "");
                 infos.skip = true;
             }
             break;
@@ -194,11 +191,11 @@ void check_opcode_operand(unsigned char opcode, char * operand, int operand_len)
         case 1:
             if (! operand_len){
                 infos.skip = true;
-                set_error(4, "");
+                set_error(3, "");
             }
             else if ( ! is_signed_short(operand, operand_len) ){
                 infos.skip = true;
-                set_error(8, operand);
+                set_error(6, operand);
             }
             
             break;
@@ -206,12 +203,12 @@ void check_opcode_operand(unsigned char opcode, char * operand, int operand_len)
         case 2:
             if ( ! ( regexec(&label_regex, operand, 0, NULL, 0) == 0 || is_signed_short(operand, operand_len) ) ){
                 infos.skip = true;
-                set_error(12, operand);
+                set_error(7, operand);
             }
         }
     }
 
     else {
-        set_error(2, "");
+        set_error(1, "");
     }
 }

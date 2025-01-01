@@ -7,7 +7,7 @@
 extern regex_t label_regex;
 extern Cheking_infos infos;
 
-void check_line(char * label, char * opstring, char * operand);
+void extract_line(bool verif, char * label, char * opstring, char * operand);
 
 void check_labels(Label_vector * labels);
 
