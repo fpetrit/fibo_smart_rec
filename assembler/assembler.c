@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <regex.h>
 
 #include "../constants.h"
 #include "assembler.h"
@@ -10,54 +11,49 @@
 #include "error_checking.h"
 #include "opstring_mapping.h"
 
-/**
- * Goal: extract labels, verifiy labels coherence, verify line syntax, verifiy opstrings, arguments...
- */
+regex_t label_regex;
+Cheking_infos infos;
+
+void init(void){
+    regcomp(&label_regex, LABEL_PATTERN, REG_NOSUB);
+}
+
+
 int parse(FILE * src, Label_vector * labels){
 
     // Buffers declaration
 
-    char line[SRC_LINE_MAX_LEN + 1];
+    init();
+
+    char line[LINE_MAX_LEN + 1];
     int length;
+    unsigned int line_no = 0;
+    int address = -1;
 
     char label[LABEL_MAX_LEN + 1];
     char opstring[OPSTRING_MAX_LENGTH + 1];
-
-    // can be a regular decimal operand or a label
     char operand[LABEL_MAX_LEN];
     int operand_len;
     unsigned char opcode;
 
-    unsigned int line_no = 0;
-    int address = -1;
     int tmp;
-    bool skip;
-
-    // Buffer initialization
 
     // in case of no data, because line will be printed
     length = 0;
     line[0] = '\0';
 
-    // Checking_info initialization, to pass the line infos + errors easily to underlying checking functions
-    // Pointers to only modify the buffers and local variable prevously declared
-
-    Cheking_infos infos;
-    infos.error = NULL;
+    infos.error.err_code = 0;
+    infos.skip = false;
     infos.line = line;
     infos.len = &length;
     infos.line_no = &line_no;
 
-    // empty source file
-    if ( feof(src) != 0 )
-        set_error(&infos, 1);
-
-    while ( feof(src) == 0 && ! infos.error){
+    while ( feof(src) == 0 && ! infos.error.err_code){
 
         line_no++;
 
         // the last non NULL char is '\n' if not eof
-        fgets(line, SRC_LINE_MAX_LEN + 1, src);
+        fgets(line, LINE_MAX_LEN + 1, src);
 
         length = len(line);
 
@@ -65,27 +61,27 @@ int parse(FILE * src, Label_vector * labels){
 
         // check_line returns a bool indicating if we should check other errors
         // may not be the case because of empty line, syntax error...
-        skip = check_line(&infos, label, opstring, operand);
+        check_line(label, opstring, operand);
 
         // if the line is correct and contains data
-        if (! skip){
+        if (! infos.skip){
 
             operand_len = len(operand);
 
-            // if there is an opstring
             if (opstring[0]){
+
                 address++;
                 opcode = opstring_to_opcode(opstring, len(opstring));
-                skip = check_opcode_operand(&infos, opcode, operand, operand_len);
+                check_opcode_operand(opcode, operand, operand_len);
 
-                if ( ! skip ){
+                if ( ! infos.skip ){
 
                     // a label is being referenced OR THE OPERAND IS A DECIMAL ADRESS OFFSET
                     if (opcode == 5 || opcode == 6 || opcode == 7){
 
-                        // if the operand is not an adress (signed short) check for label being referenced
-                        // else do nothing because the operand is an address, guarenteed by check_opcode_operand()
-                        if ( ! is_signed_short(operand, operand_len) ) {
+                        // if the operand is a label, must be registered to check further declaration
+                        // else: nothing, checking by check_opcode_operand already done
+                        if ( regexec(&label_regex, operand, 0, NULL, 0) == 0 ) {
 
                             tmp = Label_vector_search(labels, operand);
 
@@ -102,7 +98,7 @@ int parse(FILE * src, Label_vector * labels){
             }
 
             // if there is a label declaration
-            if ( ! skip && label[0] ){
+            if ( ! infos.skip && *label ){
                 tmp = Label_vector_search(labels, label);
 
                 // label already referenced: must set the adress
@@ -110,7 +106,7 @@ int parse(FILE * src, Label_vector * labels){
 
                     // label has already been defined, else we can assign address
                     if (labels->arr[tmp]->address != -1){
-                        set_error(&infos, 11);
+                        set_error(11, labels->arr[tmp]->name);
                     } else {
                         labels->arr[tmp]->address = address;
                     }
@@ -122,24 +118,23 @@ int parse(FILE * src, Label_vector * labels){
             }
         }
 
-    skip = false;
+    infos.skip = false;
 
     } // end of while loop
 
-    if (! infos.error)
-        check_labels(&infos, labels);
+    if (! infos.error.err_code)
+        check_labels(labels);
 
     fseek(src, 0, SEEK_SET);
 
-    if ( infos.error )
-        display_err(infos.error);
+    if ( infos.error.err_code )
+        display_err();
 
-    // free the Error s in the Error_array
-    bool res = infos.error != NULL;
-    free_error(&infos);
+    // free regex
+    regfree(&label_regex);
     
     // can execute assemble only if zero is returned
-    return res;
+    return infos.error.err_code;
 }
 
 // can call this functions only if there is no error

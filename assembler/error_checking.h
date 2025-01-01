@@ -4,11 +4,14 @@
 #include "Error.h"
 #include "Label_vector.h"
 
-bool check_line(Cheking_infos * infos, char * label, char * opstring, char * operand);
+extern regex_t label_regex;
+extern Cheking_infos infos;
 
-void check_labels(Cheking_infos * infos, Label_vector * labels);
+void check_line(char * label, char * opstring, char * operand);
 
-bool check_opcode_operand(Cheking_infos * infos, unsigned char opcode, char * operand, int operand_len);
+void check_labels(Label_vector * labels);
+
+void check_opcode_operand(unsigned char opcode, char * operand, int operand_len);
 
 bool is_signed_short(char * s, int len);
 

@@ -3,11 +3,13 @@
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
+#include <regex.h>
 
 #include "../constants.h"
 #include "Error.h"
 #include "Label_vector.h"
 #include "opstring_mapping.h"
+#include "error_checking.h"
 
 
 // 0 no argument
@@ -24,6 +26,7 @@ static void skip_whitespaces_tab(char ** s, int * len){
         (*len)--;
     }
 }
+
 
 static void remove_final_new_line(char * s, int * len){
     if (*len > 0 && s[*len - 1] == '\n'){
@@ -48,37 +51,31 @@ static inline void read_word(char * word_tmp, char ** line_tmp_p, int * word_tmp
 }
 
 
-static bool extract_label(Cheking_infos * infos, char * label, char * word_tmp, int word_tmp_len){
-
-    bool skip = false;
+static void extract_label(char * label, char * word_tmp, int word_tmp_len){
 
     if ( word_tmp_len != 0 ){
         
-        // is it a label ?
+        // label detection trigger
         if (word_tmp[word_tmp_len - 1] == ':'){
-            
-            // is the label name at least one character ?
-            if ( word_tmp_len > 1){
-                word_tmp[word_tmp_len - 1] = '\0';
+
+            word_tmp[word_tmp_len - 1] = '\0';
+
+            if ( regexec(&label_regex, word_tmp, 0, NULL, 0) == REG_NOMATCH ){
+                set_error(9, word_tmp);
+                infos.skip = true;
+            }
+
+            else
                 strcpy(label, word_tmp);
-            }
-            // the label name is an empty string
-            else {
-                set_error(infos, 9);
-                skip = true;
-            }
         }
     }
-    return skip;
 }
 
 
-bool check_line(Cheking_infos * infos, char * label, char * opstring, char * operand) {
-    
-    bool skip = true;
-    
-    char line_tmp[SRC_LINE_MAX_LEN];
-    strcpy(line_tmp, infos->line);
+void check_line(char * label, char * opstring, char * operand) {
+        
+    char line_tmp[LINE_MAX_LEN];
+    strcpy(line_tmp, infos.line);
 
     // a char * variable can be incremented
     char * line_tmp_p = line_tmp;
@@ -86,7 +83,7 @@ bool check_line(Cheking_infos * infos, char * label, char * opstring, char * ope
     char word_tmp[LABEL_MAX_LEN];
     int word_tmp_len = 0;
 
-    int line_tmp_len = *(infos->len);
+    int line_tmp_len = *(infos.len);
 
     // initialize to error/empty values
     // very important
@@ -101,10 +98,9 @@ bool check_line(Cheking_infos * infos, char * label, char * opstring, char * ope
 
     if ( word_tmp_len != 0){
 
-        skip = extract_label(infos, label, word_tmp, word_tmp_len);
+        extract_label(label, word_tmp, word_tmp_len);
 
-        // extract the label if any and true if there is one, we must read more to find label
-        if ( ! skip ) {
+        if ( ! infos.skip ) {
             
             // if we have read a label, must read more to get opstring
             if ( *label != '\0' ){
@@ -128,27 +124,25 @@ bool check_line(Cheking_infos * infos, char * label, char * opstring, char * ope
             skip_whitespaces_tab(&line_tmp_p, &line_tmp_len);
 
             if (line_tmp_len != 0){
-                set_error(infos, 7);
+                set_error(7, "");
             }
         }
     }
-    
-    return skip;
 }
 
 
-void check_labels(Cheking_infos * infos, Label_vector * labels)
+void check_labels(Label_vector * labels)
 {
-    infos->line = '\0';
+    infos.line = '\0';
 
     int i = 0;
-    while ( i < labels->count && ! infos->error) {
+    while ( i < labels->count && ! infos.error.err_code) {
 
-        infos->line_no = &(labels->arr[i]->line_no);
+        infos.line_no = &(labels->arr[i]->line_no);
 
-        // il label address have never been set, never been declared, error
+        // il label address have never been set, label never been declared but used, error
         if (labels->arr[i]->address == -1){
-            set_error(infos, 6);
+            set_error(6, labels->arr[i]->name);
         }
 
         i++;
@@ -176,9 +170,8 @@ bool is_signed_short(char * s, int len){
 }
 
 
-bool check_opcode_operand(Cheking_infos * infos, unsigned char opcode, char * operand, int operand_len){
+void check_opcode_operand(unsigned char opcode, char * operand, int operand_len){
 
-    bool skip = false;
     unsigned char type;
 
     if ( opcode != 255 ){
@@ -193,35 +186,32 @@ bool check_opcode_operand(Cheking_infos * infos, unsigned char opcode, char * op
         {
         case 0:
             if (operand_len){
-                set_error(infos, 3);
-                skip = true;
+                set_error(3, "");
+                infos.skip = true;
             }
             break;
 
         case 1:
             if (! operand_len){
-                skip = true;
-                set_error(infos, 4);
+                infos.skip = true;
+                set_error(4, "");
             }
             else if ( ! is_signed_short(operand, operand_len) ){
-                skip = true;
-                set_error(infos, 10);
+                infos.skip = true;
+                set_error(8, operand);
             }
+            
             break;
 
         case 2:
-        // if not a signed short, will be interpreted as a label, if label not declared, error during check_labels()
-        // problem: surprising behavior like long int can be interpreted as label
-            if ( ! operand_len ){
-                skip = true;
-                set_error(infos, 4);
+            if ( ! ( regexec(&label_regex, operand, 0, NULL, 0) == 0 || is_signed_short(operand, operand_len) ) ){
+                infos.skip = true;
+                set_error(12, operand);
             }
         }
     }
 
     else {
-        set_error(infos, 2);
+        set_error(2, "");
     }
-
-    return skip;
 }
