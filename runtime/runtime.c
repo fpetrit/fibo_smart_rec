@@ -1,5 +1,4 @@
-#ifndef RUNTIME_H
-#define RUNTIME_H
+#include "runtime.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -433,4 +432,3 @@ int main(void){
     mp.EMT = initialiser_MP();  /*Allouer la memoire dynamique pour l espace memoire de stockage*/
 }
 
-#endif
