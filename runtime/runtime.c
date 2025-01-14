@@ -5,16 +5,9 @@
 #include <limits.h>
 #include <time.h>
 
-void run(FILE * hexa);
+//void run(FILE * hexa);
 
-struct MP{                  /*MP = Machine a Pile*/     
-    int PC;                 /*On initialisera plus tard les valeurs de mp.PC et mp.SP dans le main a 0. Bon c est fait normalement*/
-    int SP;
-    short *EMT;        /*EMT = Espace Memoire de Travail. Je ne dois pas oublier de rajouter le malloc plus tard!!*/
-
-}mp = {0, 0, NULL};     /*initialiser EMT[] dans le main avec la fonction initialiser_MP ecrite juste en dessous*/
-
-typedef struct MP MP;
+MP mp = {0, 0, NULL};     /*initialiser EMT[] dans le main avec la fonction initialiser_MP ecrite juste en dessous*/
 
 short *initialiser_MP(void){
     short *p = malloc(5000 * sizeof(short));
@@ -30,28 +23,28 @@ short *initialiser_MP(void){
 void pop(short x){                  /*x est l'adresse*/
     if (x < 0 || x >= 5000){
         printf("Erreur [pop]: Adresse x hors limites\n");
-        return;
+        exit(1);
     }
     if (mp.SP <= 0) {
         printf("Erreur [pop]: Pile vide\n");
-        return;
+        exit(1);
     }
     mp.SP --;
-    mp.EMT[x] = mp.SP;
+    mp.EMT[x] = mp.EMT[mp.SP];
 }
 
 void ipop(void){
     if (mp.SP <= 1) {
         printf("Erreur [ipop]: Pile vide\n");
-        return;
+        exit(1);
 
     if (mp.EMT[(mp.SP)-1]< 0 || mp.EMT[(mp.SP)-1] >= 5000) {
         printf("Erreur [ipop]: Adresse x hors limites\n");
-        return;
+        exit(1);
     }
 
     }
-    int n = mp.EMT[mp.SP -1];       /*n = valeur du sommet de la pile*/
+    short n = mp.EMT[mp.SP -1];       /*n = valeur du sommet de la pile*/
     mp.EMT[n] = mp.EMT[mp.SP - 2];
     mp.SP -= 2;
 }
@@ -59,7 +52,7 @@ void ipop(void){
 void push(short x){
     if (mp.SP >= 5000){         /*En gros le cas ou SP devient egal a 5000 marche mais si on push avec SP deja egal a 5000 ca ne marche pas*/
         printf("Erreur [push]: Limite sup. Pile atteinte\n");
-        return;
+        exit(1);
     }
     mp.EMT[mp.SP] = mp.EMT[x];
     mp.SP ++;
@@ -68,16 +61,16 @@ void push(short x){
 void ipush(void){
     if (mp.EMT[mp.SP - 1] < 0 || mp.EMT[mp.SP - 1] >= 5000){
         printf("Erreur [ipush]: valeur contenue dans le sommet de la Pile n'est pas compris dans l'intervalle de l'espace memoire de travail\n");
-        return;
+        exit(1);
     }
-    int n = mp.EMT[mp.SP -1];  
+    short n = mp.EMT[mp.SP -1];  
     mp.EMT[mp.SP -1] = mp.EMT[n];       /*SP n est pas decremente comme la place de SP-1 est directement prise*/
 }
 
 void push_(short i){             /*La je veux remplacer le _ par # mais je n'arrive pas, stp fred help*/
     if (mp.SP >= 5000){         /*En gros le cas ou SP devient egal a 5000 marche mais si on push avec SP deja egal a 5000 ca ne marche pas*/
         printf("Erreur [push_]: Limite sup. Pile atteinte\n");
-        return;
+        exit(1);
     }
     mp.EMT[mp.SP] = i;
     mp.SP ++;
@@ -87,7 +80,7 @@ void jmp(short adr){
     mp.PC += adr;
     if (mp.PC >= 5000 || mp.PC <= -1){
         printf("Erreur [jmp]: PC en dehors de la Pile\n");       /*C'est plutot un warning puisque ptet on reajoute a PC un nombre qui le replace dans la memoire*/
-        return;
+        exit(1);
     }
 }
 void jnz(short adr){          /*Faire attention au cas ou PC sort de l'intervalle permis*/
@@ -100,11 +93,11 @@ void jnz(short adr){          /*Faire attention au cas ou PC sort de l'intervall
 void call(short adr) {
     if (mp.SP <0 || mp.SP >= 5000){
         printf("Erreur [call]: SP en dehors de la Pile\n");
-        return;
+        exit(1);
     }
     if(mp.PC < (-32768) || mp.PC > 32767){
         printf("Erreur [call]: mp.PC n'est pas un short pour etre stocker sur la Pile");
-        return;
+        exit(1);
     }
     // Empiler PC sur la pile
     mp.EMT[mp.SP++] = mp.PC;            
@@ -117,18 +110,18 @@ void ret(void){
     /*Demander au prof*/
 }
 
-void read(int x){
+void read(short x){
 
     //Boucle pour s'assurer que l'utilisateur rentre bien un short
 
     while (1) {
         printf("Entrer une valeur (short) a placer dans la variable a l'adresse %d: \n", x);
 
-        // Lire l'entrée avec %hi
-        int retour_scanf = scanf("%hi", &(mp.EMT[x]));
+        // Lire l'entree avec %hi
+        short retour_scanf = scanf("%hi", &(mp.EMT[x]));
 
         if (retour_scanf == 1) {    //(verifier qu'on a une seule entree)
-            // Vérification des limites de short
+            // Verification des limites de short
             if (mp.EMT[x] >= SHRT_MIN && mp.EMT[x] <= SHRT_MAX) {
                 break;
             } else {
@@ -137,13 +130,13 @@ void read(int x){
         } else {
             printf("Erreur : veuillez entrer un nombre entier valide (short).\n");
 
-            // Vider le buffer d'entrée
+            // Vider le buffer d'entree
             while (getchar() != '\n');
         }
     }
 }
 
-void write(int x){
+void write(short x){
     if (x<0 || x>=5000){
         printf("Pas une adresse valide\n");
     }
@@ -151,16 +144,16 @@ void write(int x){
         printf("Variable a l'adresse %d: %hi\n", x, mp.EMT[x]);
     }
 }
-void op(int i) {
+void op(short i) {
     switch (i) {
         case 0: // Test d'egalite
             if (mp.SP > 5000){
                 printf("Erreur op[0]: SP depasse la limite sup. de EMT.\n");
-                return;
+                exit(1);
             }
             if (mp.SP < 2) {
-                printf("Erreur op[0]: Pas assez d'éléments sur la pile pour effectuer l'opération.\n");
-                return;
+                printf("Erreur op[0]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
+                exit(1);
             }
             mp.SP--;
             if (mp.EMT[mp.SP - 1] == mp.EMT[mp.SP]) {
@@ -173,11 +166,11 @@ void op(int i) {
         case 1: // Test d'inegalite
             if (mp.SP > 5000){
                 printf("Erreur op[1]: SP depasse la limite sup. de EMT.\n");
-                return;
+                exit(1);
             }
             if (mp.SP < 2) {
-                printf("Erreur op[1]: Pas assez d'éléments sur la pile pour effectuer l'opération.\n");
-                return;
+                printf("Erreur op[1]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
+                exit(1);
             }
             mp.SP--;
             if (mp.EMT[mp.SP - 1] != mp.EMT[mp.SP]) {
@@ -190,11 +183,11 @@ void op(int i) {
         case 2: // Test >=
             if (mp.SP > 5000){
                 printf("Erreur op[2]: SP depasse la limite sup. de EMT.\n");
-                return;
+                exit(1);
             }
             if (mp.SP < 2) {
-                printf("Erreur op[2]: Pas assez d'éléments sur la pile pour effectuer l'opération.\n");
-                return;
+                printf("Erreur op[2]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
+                exit(1);
             }
             mp.SP--;
             if (mp.EMT[mp.SP - 1] >= mp.EMT[mp.SP]) {
@@ -207,11 +200,11 @@ void op(int i) {
         case 3: // Test <=
             if (mp.SP > 5000){
                 printf("Erreur op[3]: SP depasse la limite sup. de EMT.\n");
-                return;
+                exit(1);
             }
             if (mp.SP < 2) {
-                printf("Erreur op[3]: Pas assez d'éléments sur la pile pour effectuer l'opération.\n");
-                return;
+                printf("Erreur op[3]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
+                exit(1);
             }
             mp.SP--;
             if (mp.EMT[mp.SP - 1] <= mp.EMT[mp.SP]) {
@@ -224,11 +217,11 @@ void op(int i) {
         case 4: // Test >
             if (mp.SP > 5000){
                 printf("Erreur op[4]: SP depasse la limite sup. de EMT.\n");
-                return;
+                exit(1);
             }
             if (mp.SP < 2) {
-                printf("Erreur op[4]: Pas assez d'éléments sur la pile pour effectuer l'opération.\n");
-                return;
+                printf("Erreur op[4]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
+                exit(1);
             }
             mp.SP--;
             if (mp.EMT[mp.SP - 1] > mp.EMT[mp.SP]) {
@@ -241,11 +234,11 @@ void op(int i) {
         case 5: // Test <
             if (mp.SP > 5000){
                 printf("Erreur op[5]: SP depasse la limite sup. de EMT.\n");
-                return;
+                exit(1);
             }
             if (mp.SP < 2) {
-                printf("Erreur op[5]: Pas assez d'éléments sur la pile pour effectuer l'opération.\n");
-                return;
+                printf("Erreur op[5]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
+                exit(1);
             }
             mp.SP--;
             if (mp.EMT[mp.SP - 1] < mp.EMT[mp.SP]) {
@@ -258,11 +251,11 @@ void op(int i) {
         case 6: // | 
             if (mp.SP > 5000){
                 printf("Erreur op[6]: SP depasse la limite sup. de EMT.\n");
-                return;
+                exit(1);
             }
             if (mp.SP < 2) {
-                printf("Erreur op[6]: Pas assez d'éléments sur la pile pour effectuer l'opération.\n");
-                return;
+                printf("Erreur op[6]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
+                exit(1);
             }
             mp.SP--;
             mp.EMT[mp.SP-1] |= mp.EMT[mp.SP];
@@ -271,11 +264,11 @@ void op(int i) {
         case 7: // ^ 
             if (mp.SP > 5000){
                 printf("Erreur op[7]: SP depasse la limite sup. de EMT.\n");
-                return;
+                exit(1);
             }
             if (mp.SP < 2) {
-                printf("Erreur op[7]: Pas assez d'éléments sur la pile pour effectuer l'opération.\n");
-                return;
+                printf("Erreur op[7]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
+                exit(1);
             }
             mp.SP--;
             mp.EMT[mp.SP-1] ^= mp.EMT[mp.SP];
@@ -284,11 +277,11 @@ void op(int i) {
         case 8: // | 
             if (mp.SP > 5000){
                 printf("Erreur op[8]: SP depasse la limite sup. de EMT.\n");
-                return;
+                exit(1);
             }
             if (mp.SP < 2) {
-                printf("Erreur op[8]: Pas assez d'éléments sur la pile pour effectuer l'opération.\n");
-                return;
+                printf("Erreur op[8]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
+                exit(1);
             }
             mp.SP--;
             mp.EMT[mp.SP-1] &= mp.EMT[mp.SP];
@@ -297,11 +290,11 @@ void op(int i) {
         case 9: // ~ 
             if (mp.SP > 5000){
                 printf("Erreur op[9]: SP depasse la limite sup. de EMT.\n");
-                return;
+                exit(1);
             }
             if (mp.SP < 2) {
-                printf("Erreur op[9]: Pas assez d'éléments sur la pile pour effectuer l'opération.\n");
-                return;
+                printf("Erreur op[9]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
+                exit(1);
             }
             mp.SP--;
             mp.EMT[mp.SP-1] = ~(mp.EMT[mp.SP-1]);
@@ -310,11 +303,11 @@ void op(int i) {
         case 10: // Addition des deux valeurs au sommet 
             if (mp.SP > 5000){
                 printf("Erreur op[10]: SP depasse la limite sup. de EMT.\n");
-                return;
+                exit(1);
             }
             if (mp.SP < 2) {
-                printf("Erreur op[10]: Pas assez d'éléments sur la pile pour effectuer l'opération.\n");
-                return;
+                printf("Erreur op[10]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
+                exit(1);
             }
             mp.SP--;
             mp.EMT[mp.SP-1] += mp.EMT[mp.SP];
@@ -323,11 +316,11 @@ void op(int i) {
         case 11: // Soustraction des deux valeurs au sommet 
             if (mp.SP > 5000){
                 printf("Erreur op[11]: SP depasse la limite sup. de EMT.\n");
-                return;
+                exit(1);
             }
             if (mp.SP < 2) {
-                printf("Erreur op[11]: Pas assez d'éléments sur la pile pour effectuer l'opération.\n");
-                return;
+                printf("Erreur op[11]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
+                exit(1);
             }
             mp.SP--;
             mp.EMT[mp.SP-1] -= mp.EMT[mp.SP];
@@ -336,11 +329,11 @@ void op(int i) {
         case 12: // Multiplication des deux valeurs au sommet 
             if (mp.SP > 5000){
                 printf("Erreur op[12]: SP depasse la limite sup. de EMT.\n");
-                return;
+                exit(1);
             }
             if (mp.SP < 2) {
-                printf("Erreur op[12]: Pas assez d'éléments sur la pile pour effectuer l'opération.\n");
-                return;
+                printf("Erreur op[12]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
+                exit(1);
             }
             mp.SP--;
             mp.EMT[mp.SP-1] *= mp.EMT[mp.SP];
@@ -349,11 +342,11 @@ void op(int i) {
         case 13: // Div. Entiere des deux valeurs au sommet 
             if (mp.SP > 5000){
                 printf("Erreur op[13]: SP depasse la limite sup. de EMT.\n");
-                return;
+                exit(1);
             }
             if (mp.SP < 2) {
-                printf("Erreur op[13]: Pas assez d'éléments sur la pile pour effectuer l'opération.\n");
-                return;
+                printf("Erreur op[13]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
+                exit(1);
             }
             mp.SP--;
             mp.EMT[mp.SP-1] /= mp.EMT[mp.SP];
@@ -362,11 +355,11 @@ void op(int i) {
         case 14: // Modulo des deux valeurs au sommet 
             if (mp.SP > 5000){
                 printf("Erreur op[14]: SP depasse la limite sup. de EMT.\n");
-                return;
+                exit(1);
             }
             if (mp.SP < 2) {
-                printf("Erreur op[14]: Pas assez d'éléments sur la pile pour effectuer l'opération.\n");
-                return;
+                printf("Erreur op[14]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
+                exit(1);
             }
             mp.SP--;
             mp.EMT[mp.SP-1] %= mp.EMT[mp.SP];
@@ -375,17 +368,17 @@ void op(int i) {
         case 15: // Inverse la valeur au sommet 
             if (mp.SP > 5000){
                 printf("Erreur op[15]: SP depasse la limite sup. de EMT.\n");
-                return;
+                exit(1);
             }
             if (mp.SP < 1) {
-                printf("Erreur op[15]: Pas assez d'éléments sur la pile pour effectuer l'opération.\n");
-                return;
+                printf("Erreur op[15]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
+                exit(1);
             }
             mp.EMT[mp.SP-1] = -mp.EMT[mp.SP-1];
             break;
         
         default:
-            printf("Erreur op[i]: Opération inconnue (%d).\n", i);
+            printf("Erreur op[i]: Operation inconnue (%d).\n", i);
             break;
     }
 }
@@ -395,40 +388,61 @@ void op(int i) {
 void rnd(short x){      //ATTENTION. Faut etre sur que ce ne'est pas l'utilisateur qui rentre de valeur ici, sinon faut changer le code pour qu'il ne puisse uniquement entrer un truc de valide
     if (mp.SP < 0){
         printf("Erreur [rnd]: Stack Pointeur en dessous de la borne inf. \n");  //Presque imp que ca se passe mais bon
-        return;
+        exit(1);
     }
     else if (mp.SP >= 5000){
         printf("Erreur [rnd]: Stack Pointeur au dessus de la borne sup. \n");
-        return;
+        exit(1);
     }
-    // Génération du nombre aléatoire entre 0 et x-1
+    // Generation du nombre aleatoire entre 0 et x-1
     short random_value = rand() % x;
 
     // Empilement du nombre sur la pile
     mp.EMT[mp.SP] = random_value;
-    mp.SP++; // Incrémentation du pointeur de pile
+    mp.SP++; // Incrementation du pointeur de pile
 }
 
 void dup(void){
     if (mp.SP <= 0){
         printf("Erreur [rnd]: Stack Pointeur en dessous de la borne inf. \n");  //Presque imp que ca se passe mais bon sauf cas ou SP est a 0 (rien dans EMT)
-        return;
+        exit(1);
     }
     else if (mp.SP >= 5000){    //warning pour le cas ou SP pointe sur le dernier element ccar SP pointe apres ca sur 5000 qui n est pas dans EMT
         printf("Erreur [rnd]: Stack Pointeur au dessus de la borne sup. \n");
-        return;
+        exit(1);
     }
     mp.EMT[mp.SP] = mp.EMT[mp.SP - 1];
     mp.SP++;
 }
 
 void halt(void){        // doit etre mis dans le main pour faire effet
-    printf("Simulation terminée. Fin du programme.\n"); 
-    exit(0); // Arrête l'exécution du programme
+    printf("Simulation terminee. Fin du programme.\n"); 
+    exit(1); // Arrête l'execution du programme
 }
 
 /*ptet c mieux dinitilaiser dans la struct de MP PC et SP en tant que shorts*/
 int main(void){
     mp.EMT = initialiser_MP();  /*Allouer la memoire dynamique pour l espace memoire de stockage*/
+    mp.EMT[0] = 0;
+    mp.EMT[1] = 2;
+    mp.EMT[2] = 4;
+    mp.EMT[3] = 6;
+    mp.EMT[4] = 8;
+
+    printf("%d\n", mp.SP);
+    printf("%d\n", mp.PC);
+
+    push(2);
+    printf("%d\n%d\n",mp.SP, mp.PC);
+    printf("%d\n", mp.EMT[0]);
+    //jmp(2);
+    //printf("%d\n%d\n", mp.SP, mp.PC);
+    //pop(4999);
+    //printf("%d\n", mp.EMT[4999]);
+    //pop(4998);
+    //printf("%d\n", mp.EMT[4998]);
+    //pop(4997);
+    mp.SP = 1;
+    op(0);
 }
 
