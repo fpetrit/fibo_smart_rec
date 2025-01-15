@@ -7,11 +7,11 @@
 
 int main(int argc, char ** argv){
 
-    // test argc
+    // test the argcount, we need 2 (the binary name + 1 filename)
 
     if (argc != 2){
-        fprintf(stderr, "Usage example: ./simulateur pgm.txt\n");
-        return 1;
+        fprintf(stderr, "Usage: ./simulateur <filename>\n"); //stderr:
+        exit(EXIT_FAILURE);
     }
 
     // open the source file, open a new output file in the same folder, test descriptors
@@ -22,7 +22,7 @@ int main(int argc, char ** argv){
 
     if (! src){
         perror("source code opening");
-        return 1;
+        exit(EXIT_FAILURE);
     }
 
     output = fopen("hexa.txt", "w");
@@ -30,21 +30,28 @@ int main(int argc, char ** argv){
     if (! output){
         perror("output file opening");
         fclose(src);
-        return 1;
+        exit(EXIT_FAILURE);
     }
 
     // parsing and assembling
+    // parsing is reading the input source code to verify the absence of error
 
+    // a label: "une étiquette", text identifier to reference a block of code
+    // labels are converted to address number differences, in the hexadecimal ouput
+    // a vector is a data structure where data is contiguously stored in RAM, it is different from an array
+    // it automatically uses malloc calls to dynamically allocate more memory when the vector is full
     Label_vector * labels = Label_vector_construct();
 
-    // non zero if any error occured
-    int response = parse(src, labels);
+    // the response is non zero if any error occured
+    int response = parse(src, labels);  //Parse: <Detecte les erreurs
 
+    // the assemble function
     if (response == 0)
         assemble(src, output, labels);
 
     fclose(src);
 
+    // must be called when the variable is useless to free dynamically allocated memory (malloc --> free)
     Label_vector_deconstruct(labels);
 
     // if no error (response is 0), begin execution of ./hexa.txt
@@ -54,5 +61,5 @@ int main(int argc, char ** argv){
 
     fclose(output);
 
-    return 0;
+    exit(EXIT_SUCCESS);
 }
