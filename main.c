@@ -25,7 +25,7 @@ int main(int argc, char ** argv){
         exit(EXIT_FAILURE);
     }
 
-    output = fopen("hexa.txt", "w");
+    output = fopen("hexa.txt", "w+");
 
     if (! output){
         perror("output file opening");
@@ -43,7 +43,7 @@ int main(int argc, char ** argv){
     Label_vector * labels = Label_vector_construct();
 
     // the response is non zero if any error occured
-    int response = parse(src, labels);  //Parse: <Detecte les erreurs
+    int response = parse(src, labels);
 
     // the assemble function
     if (response == 0)
@@ -56,8 +56,8 @@ int main(int argc, char ** argv){
 
     // if no error (response is 0), begin execution of ./hexa.txt
 
-    // if (response == 0)
-    //     run(output);
+    if (response == 0)
+        run(output);
 
     fclose(output);
 

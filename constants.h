@@ -6,8 +6,9 @@
 #define LABEL_MAX_LEN               30
 #define LABEL_MAX_NO                60
 #define OPSTRING_MAX_LENGTH         5
-#define MAX_ERROR_NO                10
 
 #define LABEL_PATTERN               "^[_a-zA-Z][_0-9a-zA-Z]*$"
+
+#define MP_SUP                      5000
 
 #endif

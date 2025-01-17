@@ -6,7 +6,7 @@
 #define VECTOR_INITIAL_LENGTH 25
 
 static inline int new_length(int length){
-    return 2*length;
+    return 2*length + 1;
 }
 
 
