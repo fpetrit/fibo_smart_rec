@@ -4,12 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct Instruction {
+typedef struct {
     unsigned char opcode;
     signed short  operand;
 } Instruction;
 
-typedef struct Instruction_vector {
+typedef struct {
     Instruction * arr;
     size_t size;
     size_t count;
