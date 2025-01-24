@@ -5,12 +5,13 @@
 
 #define VECTOR_INITIAL_LENGTH 25
 
-static inline int new_length(int length){
+// Calcul la nouvelle taille du label vector lors d'un aggrandissement
+static inline int new_length(int length){   
     return 2*length + 1;
 }
 
 
-Label_vector * Label_vector_construct(){
+Label_vector * Label_vector_construct(void){
     Label_vector * res = malloc(sizeof(Label_vector));
     res->length = VECTOR_INITIAL_LENGTH;
     res->count = 0;
