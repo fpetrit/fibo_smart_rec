@@ -6,6 +6,8 @@ test.c
 simulateur
 test
 
+!pgm.txt
+
 # Prerequisites
 *.d
 
