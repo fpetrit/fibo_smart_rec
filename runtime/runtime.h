@@ -1,7 +1,7 @@
 #ifndef RUNTIME_H
 #define RUNTIME_H
 
-typedef struct MP {
+typedef struct {
     int PC;
     int SP;
     short *EMT;

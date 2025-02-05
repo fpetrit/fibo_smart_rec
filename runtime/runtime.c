@@ -24,8 +24,8 @@ MP mp = {0, 0, NULL, 0};
 
 // throw a running error by setting mp.error accordingly and printing the message (index errocode in global const errors array)
 // "catch" happen in the run function, but displayed instant
-// static --> internet
-// inline --> internet
+// static --> Fonction qui est seulement visible au fichier dans lequel elle se trouve
+// inline --> apparemment ca appel la fonction plus rapidement(sauf si il y a unen autre raison pour laquelle tu l'as utilisee)
 // -_-
 static inline void throw_running_error(unsigned char errcode, char * prefix){
     mp.error = errcode;
@@ -43,7 +43,7 @@ short *init_mp(void){
 }
 
 
-// es tu sur du premier test la deuxieme condition ?
+// es tu sur du premier test la deuxieme condition ?    Normalement oui puisque SP <= 0 veut dire que le premier element libre sur EMT est au maximum -1 qui n'est pas dans EMT
 void pop(short x){      
     if (x < 0 || x >= MP_SUP){
         throw_running_error(2, "[pop]");
