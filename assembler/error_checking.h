@@ -5,7 +5,7 @@
 #include "Label_vector.h"
 
 extern regex_t label_regex;
-extern Cheking_infos infos;
+extern Checking_infos infos;
 
 void extract_line(bool verif, char * label, char * opstring, char * operand);
 

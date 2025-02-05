@@ -14,7 +14,7 @@ int main(int argc, char ** argv){
         exit(EXIT_FAILURE);
     }
 
-    // open the source file, open a new output file in the same folder, test descriptors
+    // open the source file, open a new output file in the same folder, test file descriptors
 
     FILE * src, * output;
 

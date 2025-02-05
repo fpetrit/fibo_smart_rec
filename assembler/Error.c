@@ -3,7 +3,6 @@
 #include <string.h>
 #include "Error.h"
 
-
 static const char * err_codes[] = {
     "assembling succeeded",                                     // 0
     "this is not a valid opstring",                             // 1
@@ -17,16 +16,13 @@ static const char * err_codes[] = {
     "operand must be a signed short or a label",                // 9
 } ;
 
-extern Cheking_infos infos;
-
 
 void display_err(void){
-    fprintf(stderr, "In line %d: %sError no. %d: %s.\n", infos.error.line_no, infos.error.line, infos.error.err_code, err_codes[infos.error.err_code]);
+    fprintf(stderr, "In line %d: %s\nError no. %d: %s.\n", infos.error.line_no, infos.error.line, infos.error.err_code, err_codes[infos.error.err_code]);
     if (*infos.error.word)
         fprintf(stderr, "---> %s\n", infos.error.word);
     fprintf(stderr, "\n");
 }
-
 
 void set_error(int err_code, char * word){
     strcpy(infos.error.line, infos.line);

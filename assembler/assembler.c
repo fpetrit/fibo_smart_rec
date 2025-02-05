@@ -12,7 +12,7 @@
 #include "opstring_mapping.h"
 
 regex_t label_regex;
-Cheking_infos infos;
+Checking_infos infos;
 
 void init_label_regex(void){
     regcomp(&label_regex, LABEL_PATTERN, REG_NOSUB);

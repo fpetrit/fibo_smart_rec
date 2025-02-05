@@ -16,7 +16,18 @@ const char * errors[] = {
     "stack overflow",                                                                                           // 4
     "the program counter register value is not a valid short, hence it cannot be stored in the stack",          // 5
 };
+/*
+P
+A
+Sµ
+OUµ
+BL
+I
+ER
+LES
+DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
 
+*/
 
 // necessary to allocate memory for EMT with init_mp
 MP mp = {0, 0, NULL, 0};
@@ -33,7 +44,7 @@ static inline void throw_running_error(unsigned char errcode, char * prefix){
 }
 
 
-
+// allocation dynamique de l'espace mémoire de travail (5000 short)
 short *init_mp(void){
     short *p = malloc(MP_SUP * sizeof(short));
     if(!p){
