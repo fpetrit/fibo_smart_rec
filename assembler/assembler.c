@@ -14,14 +14,14 @@
 regex_t label_regex;
 Checking_infos infos;
 
-void init_label_regex(void){
+static inline void init_regex(void){
     regcomp(&label_regex, LABEL_PATTERN, REG_NOSUB);
 }
 
 
 int parse(FILE * src, Label_vector * labels){
 
-    init_label_regex();
+    init_regex();
 
     fseek(src, 0, SEEK_SET);
 
@@ -136,7 +136,7 @@ int parse(FILE * src, Label_vector * labels){
 // can call this functions only if there is no error
 void assemble(FILE * src, FILE * output, Label_vector * labels){
 
-    init_label_regex();
+    init_regex();
 
     fseek(src, 0, SEEK_SET);
     fseek(output, 0, SEEK_SET);

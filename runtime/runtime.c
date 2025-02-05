@@ -653,5 +653,5 @@ void run(FILE * hexa){
     }
 
     // must call this function because of malloc call during init
-    Instruction_vector_free(&instructions);
+    Instruction_vector_deconstruct(&instructions);
 }
