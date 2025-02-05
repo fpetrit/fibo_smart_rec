@@ -250,7 +250,7 @@ void read_new(short x){
     }
 
     else
-        throw_running_error(2, "[read]");
+        throw_running_error("[read]", 2);
 }
 
  

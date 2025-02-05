@@ -103,10 +103,10 @@ int parse(FILE * src, Label_vector * labels){
                 if (tmp != -1){
 
                     // label has already been defined, else we can assign address
-                    if (labels->arr[tmp]->address != -1){
-                        set_error(6, labels->arr[tmp]->name);
+                    if (labels->arr[tmp].address != -1){
+                        set_error(6, labels->arr[tmp].name);
                     } else {
-                        labels->arr[tmp]->address = address;
+                        labels->arr[tmp].address = address;
                     }
                 }
 
@@ -207,7 +207,7 @@ void assemble(FILE * src, FILE * output, Label_vector * labels){
                     else if ( regexec(&label_regex, operand, 0, NULL, 0) == 0 ){
                         tmp = Label_vector_search(labels, operand);
                         // implicit cast, no error ?
-                        diff = labels->arr[tmp]->address - address - 1;
+                        diff = labels->arr[tmp].address - address - 1;
                         short_to_hex_string(diff, operand_hex);
                         fprintf(output, " %s", operand_hex);
                     }

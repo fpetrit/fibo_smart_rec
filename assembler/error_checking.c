@@ -135,11 +135,11 @@ void check_labels(Label_vector * labels)
     int i = 0;
     while ( i < labels->count && ! infos.error.err_code) {
 
-        infos.line_no = &(labels->arr[i]->line_no);
+        infos.line_no = &(labels->arr[i].line_no);
 
         // il label address have never been set, label never been declared but used, error
-        if (labels->arr[i]->address == -1){
-            set_error(3, labels->arr[i]->name);
+        if (labels->arr[i].address == -1){
+            set_error(3, labels->arr[i].name);
         }
 
         i++;

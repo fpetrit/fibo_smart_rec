@@ -44,19 +44,20 @@ int main(int argc, char ** argv){
     // a label: "une étiquette", translates the address number where it is declared in the source code to a referable string
     // a vector is a data structure where data is contiguously stored in RAM, it is different from an array
     // it automatically uses malloc calls to dynamically allocate more memory when the vector is full
-    Label_vector * labels = Label_vector_init();
+    Label_vector labels;
+    Label_vector_init(&labels);
 
     // the response is non zero if any error occured
-    int response = parse(src, labels);
+    int response = parse(src, &labels);
 
     // the assemble function
     if (response == 0)
-        assemble(src, output, labels);
+        assemble(src, output, &labels);
 
     fclose(src);
 
     // must be called when the variable is useless to free dynamically allocated memory (malloc --> free)
-    Label_vector_deconstruct(labels);
+    Label_vector_deconstruct(&labels);
 
     // if no error (response is 0), begin execution of ./hexa.txt
     if (response == 0)
