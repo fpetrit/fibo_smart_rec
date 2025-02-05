@@ -10,7 +10,7 @@ typedef struct {
 } Instruction;
 
 typedef struct {
-    Instruction * arr;
+    Instruction *arr;
     size_t size;
     size_t count;
 } Instruction_vector ;
