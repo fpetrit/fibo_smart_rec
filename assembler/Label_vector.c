@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief A resizable array struct that stores the labels data.
+ */
+
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
@@ -10,16 +15,10 @@ static inline int new_length(int length){
     return 2*length + 1;
 }
 
-Label_vector * Label_vector_construct(void){
-    Label_vector * res = malloc(sizeof(Label_vector));
-
-    if (res) {
-        res->arr = malloc(sizeof(Label) * res->length);
-        res->length = res->arr ? VECTOR_INITIAL_LENGTH : 0;
-        res->count = 0;
-    }
-    
-    return res;
+void Label_vector_init(Label_vector * vect){
+    vect->arr = malloc(sizeof(Label) * vect->length);
+    vect->length = vect->arr ? VECTOR_INITIAL_LENGTH : 0;
+    vect->count = 0;
 }
 
 Label * Label_vector_create_label(Label_vector * vect, char * name, int address, int line_no){
@@ -54,5 +53,5 @@ int Label_vector_search(Label_vector * vect, char * name){
 }
 
 inline void Label_vector_deconstruct(Label_vector * vect){
-    free(vect);
+    free(vect->arr);
 }

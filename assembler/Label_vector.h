@@ -38,9 +38,8 @@ typedef struct {
 } Label_vector ;
 
 
-/// @brief  Initialize a new @ref Label_vector.
-/// @return A pointer to the new @ref Label_vector, NULL if malloc failed. 
-Label_vector * Label_vector_construct(void);
+/// @brief  Initialize the passed @ref Label_vector.
+void Label_vector_init(Label_vector * vect);
 
 
 /// @brief Add a @ref Label strucure in the passed @ref Label_vector. The vector is automatically resized if full. 
