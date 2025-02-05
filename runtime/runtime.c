@@ -9,12 +9,16 @@
 
 
 const char * errors[] = {
-    "", // errcode 0 means no error                                                                             // 0
-    "dynamic memory allocation failed",                                                                         // 1
-    "memory address out of range",                                                                              // 2
-    "stack underflow",                                                                                          // 3
-    "stack overflow",                                                                                           // 4
-    "the program counter register value is not a valid short, hence it cannot be stored in the stack",          // 5
+    //each error message down below starts with ": " to get a nice error message
+
+    "", // errcode 0 means no error                                                                               // 0
+    ": dynamic memory allocation failed",                                                                         // 1
+    ": memory address out of range",                                                                              // 2
+    ": stack underflow",                                                                                          // 3
+    ": stack overflow",                                                                                           // 4
+    ": the program counter register value is not a valid short, hence it cannot be stored in the stack",          // 5
+    ": PC out of bounds"                                                                                          // 6
+    ": infinte loop on the same instruction"                                                                      // 7
 };
 /*
 P
@@ -33,14 +37,15 @@ DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
 MP mp = {0, 0, NULL, 0};
 
 
-// throw a running error by setting mp.error accordingly and printing the message (index errocode in global const errors array)
+// throw a running error by setting mp.error accordingly and printing the message (index errcode in global const 'errors' array)
 // "catch" happen in the run function, but displayed instant
-// static --> Fonction qui est seulement visible au fichier dans lequel elle se trouve
-// inline --> apparemment ca appel la fonction plus rapidement(sauf si il y a unen autre raison pour laquelle tu l'as utilisee)
-// -_-
-static inline void throw_running_error(unsigned char errcode, char * prefix){
+
+// prefix 'static' --> makes a function visible only in the file where it is found
+// prefix 'inline' --> makes recurrent calls to the function go faster
+
+static inline void throw_running_error(char prefix[], unsigned char errcode){
     mp.error = errcode;
-    fprintf(stderr, "Error: %s %s", prefix, errors[errcode]);
+    fprintf(stderr, "Error: %s %s", prefix, errors[errcode]);   //fprintf(stderr, ...) ensures that error messages are printed immediately, even if the program crashes
 }
 
 
@@ -48,19 +53,19 @@ static inline void throw_running_error(unsigned char errcode, char * prefix){
 short *init_mp(void){
     short *p = malloc(MP_SUP * sizeof(short));
     if(!p){
-        throw_running_error(1, "[init_mp]");
+        throw_running_error("[init_mp]", 1);
     }
     return p;
 }
 
 
 // es tu sur du premier test la deuxieme condition ?    Normalement oui puisque SP <= 0 veut dire que le premier element libre sur EMT est au maximum -1 qui n'est pas dans EMT
-void pop(short x){      
-    if (x < 0 || x >= MP_SUP){
-        throw_running_error(2, "[pop]");
+void pop(short x) {      
+    if (x < 0 || x >= MP_SUP){  // invalid address
+        throw_running_error("[pop]", 2);
     }
-    else if (mp.SP <= 0) {
-        throw_running_error(3, "[pop]");
+    else if (mp.SP <= 0) {  // stack underflow
+        throw_running_error("[pop]", 3);
     }
     else {
         mp.SP--;
@@ -71,74 +76,100 @@ void pop(short x){
 
 
 
-void ipop(short){
-    if (mp.SP <= 1)
-        throw_running_error(3, "[ipop]");
+void ipop(short x){
+    if (mp.SP <= 1) // stack underflow
+        throw_running_error("[ipop]", 3);
 
-    // j'ai modifie la deuxieme condition en mettant inférieur strict faut que tu me dises
-    if (mp.EMT[(mp.SP)-1]< 0 || mp.EMT[mp.SP - 1] > MP_SUP) {
-        throw_running_error(2, "[ipop]");
+    else if (mp.EMT[mp.SP - 1] < 0 || mp.EMT[mp.SP - 1] >= MP_SUP) {    // invalid address
+        throw_running_error("[ipop]", 2);
     }
 
-    short n = mp.EMT[mp.SP - 1];
-    mp.EMT[n] = mp.EMT[mp.SP - 2];
-    mp.SP -= 2;
-    mp.PC++;
+    else {    
+        short n = mp.EMT[mp.SP - 1];
+        mp.EMT[n] = mp.EMT[mp.SP - 2];
+        mp.SP -= 2;
+        mp.PC++;
+    }
 }
 
 
 
 void push(short x){
-    if (mp.SP >= MP_SUP){         /*En gros le cas ou SP devient egal a MP_SUP marche mais si on push avec SP deja egal a MP_SUP ca ne marche pas*/
-        printf("Erreur [push]: Limite sup. Pile atteinte\n");
-        exit(1);
+    if (mp.SP >= MP_SUP){   // stack overflow
+        throw_running_error("[push]", 4);
     }
-    mp.EMT[mp.SP] = mp.EMT[x];
-    mp.SP ++;
-    mp.PC++;
+    else if (x < 0 || x >= MP_SUP) {    //  invalid address
+        throw_running_error("[push]", 2);
+    }
+    else {
+        mp.EMT[mp.SP] = mp.EMT[x];
+        mp.SP++;
+        mp.PC++;
+    }
 }
 
 
 
-void ipush(short){
-    if (mp.EMT[mp.SP - 1] < 0 || mp.EMT[mp.SP - 1] >= MP_SUP){
-        printf("Erreur [ipush]: valeur contenue dans le sommet de la Pile n'est pas compris dans l'intervalle de l'espace memoire de travail\n");
-        exit(1);
+void ipush(short x){
+    if (mp.EMT[mp.SP - 1] < 0 || mp.EMT[mp.SP - 1] >= MP_SUP){  // invalid address
+        throw_running_error("[ipush]", 2);
     }
-    short n = mp.EMT[mp.SP -1];  
-    mp.EMT[mp.SP -1] = mp.EMT[n];       /*SP n est pas decremente comme la place de SP-1 est directement prise*/
-    mp.PC++;
+    else {   
+        short n = mp.EMT[mp.SP - 1];  
+        mp.EMT[mp.SP - 1] = mp.EMT[n];       //SP is not decremented as changes are direclty made to mp.EMT[SP - 1]
+        mp.PC++;
+    }
 }
 
 
 
 void push_(short i){
-    if (mp.SP >= MP_SUP){         /*En gros le cas ou SP devient egal a MP_SUP marche mais si on push avec SP deja egal a MP_SUP ca ne marche pas*/
-        printf("Erreur [push_]: Limite sup. Pile atteinte\n");
-        exit(1);
+    if (mp.SP >= MP_SUP){   // stack overflow
+        throw_running_error("[push# i]", 4);
     }
-    mp.EMT[mp.SP] = i;
-    mp.SP ++;
-    mp.PC++;
+    else {
+        mp.EMT[mp.SP] = i;
+        mp.SP++;
+        mp.PC++;
+    }
 }
 
 
 
 void jmp(short adr){
-    mp.PC += adr;
+    if (((mp.PC + adr) >= v->count) || ((mp.PC + adr) < 0)){ // faut initialiser ici une variable globale representant le vecteur d'instructions pour que ca marche
+        throw_running_error("[jmp]", 6);
+    }
+    else if (adr == -1){    // infinite loop on the same instruction
+        throw_running_error("[jmp]", 7);
+    }
+    else {  
+        mp.PC += adr;
+        mp.PC++;
+    }
 }
 
 
 
 void jnz(short adr){          /*Faire attention au cas ou PC sort de l'intervalle permis*/
-    mp.SP --;
-
-    if (mp.EMT[mp.SP]){
-        mp.PC += adr;
+    if (mp.SP <= 0) {  // stack underflow
+        throw_running_error("[jnz]", 3);
     }
-
     else {
-        mp.PC++;
+        mp.SP--;
+        if (mp.EMT[mp.SP]){
+            if (((mp.PC + adr) >= v->count) || ((mp.PC + adr) < 0)){ // faut initialiser ici une variable globale representant le vecteur d'instructions pour que ca marche
+                throw_running_error("[jnz]", 6);
+            }
+            else if (adr == -1){    // infinite loop on the same instruction
+                throw_running_error("[jnz]", 7);
+            }
+            else {  
+                mp.PC += adr;
+                mp.PC++;
+            }
+        }
+        else mp.PC++;
     }
 }
 
@@ -156,7 +187,7 @@ void call(short adr) {
     // Empiler PC sur la pile
     mp.EMT[mp.SP++] = mp.PC;            
     // Ajouter adr au registre PC
-    mp.PC += adr;                       /*on pourrait afficher un warning puisque PC sera bcp trop en dehors de la Pile mais sa fera trop de warnings si on effectue la tache bcp trop de fois*/
+    mp.PC += adr;   /*on pourrait afficher un warning puisque PC sera bcp trop en dehors de la Pile mais sa fera trop de warnings si on effectue la tache bcp trop de fois*/
 
 }
 
@@ -225,22 +256,20 @@ void read_new(short x){
  
 
 void write(short x){
-
-    if ( 0 <= x && x <= MP_SUP) {
+    if (0 <= x && x < MP_SUP) {
         printf("Value at address %d: %hd\n", x, mp.EMT[x]);
         mp.PC++;
     }
-    else
-        throw_running_error(2, "[write]");
+    else throw_running_error("[write]", 2); // invalid address
 }
 
 
 // a partir d'ici j'ai pas mis le nouveau système d'erreur en place il faudrait le faire
 
 
-void op(short i) {
+void op(short i) {  // ATTENTION TRAVAILLER LE CAS OU Y A QUE UN ELEMENT DANS LE STACKKK
     switch (i) {
-        case 0: // Test d'egalite
+        case 0: // Equality test
             if (mp.SP > MP_SUP){
                 printf("Erreur op[0]: SP depasse la limite sup. de EMT.\n");
                 exit(1);
@@ -482,39 +511,57 @@ void op(short i) {
 
 
 void rnd(short x){      //ATTENTION. Faut etre sur que ce ne'est pas l'utilisateur qui rentre de valeur ici, sinon faut changer le code pour qu'il ne puisse uniquement entrer un truc de valide
-    if (mp.SP < 0){
-        printf("Erreur [rnd]: Stack Pointeur en dessous de la borne inf. \n");  //Presque imp que ca se passe mais bon
-        exit(1);
+    if (mp.SP < 0){ // Out of bounds (case almost impossible to happen)
+        throw_running_error("[rnd]", 2);
     }
-    else if (mp.SP >= MP_SUP){
-        printf("Erreur [rnd]: Stack Pointeur au dessus de la borne sup. \n");
-        exit(1);
+    else if (mp.SP >= MP_SUP){  // stack overflow
+        throw_running_error("[rnd]", 4);
     }
-    // Generation du nombre aleatoire entre 0 et x-1
-    short random_value = rand() % x;
+    else {
+        // Generating the random number between 0 and x-1
+        short random_value = rand() % x;
 
-    // Empilement du nombre sur la pile
-    mp.EMT[mp.SP] = random_value;
-    mp.SP++; // Incrementation du pointeur de pile
-    mp.PC++;
+        mp.EMT[mp.SP] = random_value;
+        mp.SP++;
+        mp.PC++;
+    }
 }
 
 
 
-void dup(short){
-    if (mp.SP <= 0){
-        printf("Erreur [rnd]: Stack Pointeur en dessous de la borne inf. \n");  //Presque imp que ca se passe mais bon sauf cas ou SP est a 0 (rien dans EMT)
-        exit(1);
+void dup(short x){
+    if (mp.SP <= 0){    // Out of bounds (case almost impossible to happen)
+        throw_running_error("[dup]", 2);
     }
-    else if (mp.SP >= MP_SUP){    //warning pour le cas ou SP pointe sur le dernier element ccar SP pointe apres ca sur MP_SUP qui n est pas dans EMT
-        printf("Erreur [rnd]: Stack Pointeur au dessus de la borne sup. \n");
-        exit(1);
+    else if (mp.SP >= MP_SUP){  // stack overflow
+        throw_running_error("[dup]", 4);
     }
-    mp.EMT[mp.SP] = mp.EMT[mp.SP - 1];
-    mp.SP++;
-    mp.PC++;
+    else {
+        mp.EMT[mp.SP] = mp.EMT[mp.SP - 1];
+        mp.SP++;
+        mp.PC++;
+    }
 }
 
+void halt(short x){
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
 
 /*ptet c mieux dinitilaiser dans la struct de MP PC et SP en tant que shorts*/
 // int main(short){
