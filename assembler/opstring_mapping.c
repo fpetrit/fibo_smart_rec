@@ -148,7 +148,7 @@ in_word_set (str, len)
 unsigned char opstring_to_opcode(const char * string, size_t len){
 
   unsigned char res;
-  struct opstring * p = in_word_set(string, len);
+  const struct opstring * p = in_word_set(string, len);
 
   res = ( ! p ) ? 255 : p->opcode;
 

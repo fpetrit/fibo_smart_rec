@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "Error.h"
+#include "assembler.h"
+
+extern Checking_infos infos;
 
 static const char * err_codes[] = {
     "assembling succeeded",                                     // 0
@@ -18,15 +21,16 @@ static const char * err_codes[] = {
 
 
 void display_err(void){
-    fprintf(stderr, "In line %d: %s\nError no. %d: %s.\n", infos.error.line_no, infos.error.line, infos.error.err_code, err_codes[infos.error.err_code]);
+    fprintf(stderr, "In line %d: %s\nError no. %d: q%s.\n", infos.error.line_no, infos.error.line, infos.error.err_code, err_codes[infos.error.err_code]);
     if (*infos.error.word)
         fprintf(stderr, "---> %s\n", infos.error.word);
     fprintf(stderr, "\n");
 }
 
-void set_error(int err_code, char * word){
+void set_error(PARSING_ERROR err_code, char * word){
+    infos.skip = true;
     strcpy(infos.error.line, infos.line);
     strcpy(infos.error.word, word);
-    infos.error.line_no = *infos.line_no;
+    infos.error.line_no = infos.line_no;
     infos.error.err_code = err_code;
 }

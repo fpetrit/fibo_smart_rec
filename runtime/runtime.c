@@ -253,7 +253,7 @@ void read_new(short x){
     }
 
     else
-        throw_running_error(2, "[read]");
+        throw_running_error("[read]", 2);
 }
 
  
@@ -659,5 +659,5 @@ void run(FILE * hexa){
     }
 
     // must call this function because of malloc call during init
-    Instruction_vector_free(&instructions);
+    Instruction_vector_deconstruct(&instructions);
 }
