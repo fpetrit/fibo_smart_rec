@@ -19,6 +19,9 @@ const char * errors[] = {
     ": the program counter register value is not a valid short, hence it cannot be stored in the stack",          // 5
     ": PC out of bounds"                                                                                          // 6
     ": infinte loop on the same instruction"                                                                      // 7
+    ": accessing memory out of range"                                                                             // 8
+    ": division by zero"                                                                                          // 9
+    ": unknown operation"                                                                                         // 10
 };
 /*
 P
@@ -152,8 +155,8 @@ void jmp(short adr){
 
 
 void jnz(short adr){          /*Faire attention au cas ou PC sort de l'intervalle permis*/
-    if (mp.SP <= 0) {  // stack underflow
-        throw_running_error("[jnz]", 3);
+    if (mp.SP <= 0) {  // adress(es) out of bounds
+        throw_running_error("[jnz]", 8);
     }
     else {
         mp.SP--;
@@ -263,245 +266,248 @@ void write(short x){
     else throw_running_error("[write]", 2); // invalid address
 }
 
-
-// a partir d'ici j'ai pas mis le nouveau système d'erreur en place il faudrait le faire
-
-
-void op(short i) {  // ATTENTION TRAVAILLER LE CAS OU Y A QUE UN ELEMENT DANS LE STACKKK
+void op(short i) {  // ATTENTION TRAVAILLER LE CAS OU Y A QUE UN ELEMENT DANS LE STACKKK et divsion par 0
     switch (i) {
         case 0: // Equality test
-            if (mp.SP > MP_SUP){
-                printf("Erreur op[0]: SP depasse la limite sup. de EMT.\n");
-                exit(1);
+            if (mp.SP > MP_SUP) {    // accessing address(es) out of bounds
+                throw_running_error("[op 0]", 8);
             }
-            if (mp.SP < 2) {
-                printf("Erreur op[0]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
-                exit(1);
+            else if (mp.SP < 2) {   // accessing address(es) out of bounds
+                throw_running_error("[op 0]", 8);
             }
-            mp.SP--;
-            if (mp.EMT[mp.SP - 1] == mp.EMT[mp.SP]) {
-                mp.EMT[mp.SP - 1] = 1;
-            } else {
-                mp.EMT[mp.SP - 1] = 0;
+            else {
+                mp.SP--;
+                if (mp.EMT[mp.SP - 1] == mp.EMT[mp.SP]) mp.EMT[mp.SP - 1] = 1;
+                else mp.EMT[mp.SP - 1] = 0;
+                mp.PC++;
             }
             break;
 
-        case 1: // Test d'inegalite
-            if (mp.SP > MP_SUP){
-                printf("Erreur op[1]: SP depasse la limite sup. de EMT.\n");
-                exit(1);
+        case 1: // Inequality test
+            if (mp.SP > MP_SUP) { // accessing address(es) out of bounds
+                throw_running_error("[op 1]", 8);
             }
-            if (mp.SP < 2) {
-                printf("Erreur op[1]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
-                exit(1);
+            else if (mp.SP < 2) { // accessing address(es) out of bounds
+                throw_running_error("[op 1]", 8);
             }
-            mp.SP--;
-            if (mp.EMT[mp.SP - 1] != mp.EMT[mp.SP]) {
-                mp.EMT[mp.SP - 1] = 1;
-            } else {
-                mp.EMT[mp.SP - 1] = 0;
+            else {
+                mp.SP--;
+                if (mp.EMT[mp.SP - 1] != mp.EMT[mp.SP]) mp.EMT[mp.SP - 1] = 1; 
+                else mp.EMT[mp.SP - 1] = 0;
+                mp.PC++;
             }
             break;
 
-        case 2: // Test >=
-            if (mp.SP > MP_SUP){
-                printf("Erreur op[2]: SP depasse la limite sup. de EMT.\n");
-                exit(1);
+        case 2: // >= test
+            if (mp.SP > MP_SUP) { // accessing address(es) out of bounds
+                throw_running_error("[op 2]", 8);
             }
-            if (mp.SP < 2) {
-                printf("Erreur op[2]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
-                exit(1);
+            else if (mp.SP < 2) { // accessing address(es) out of bounds
+                throw_running_error("[op 2]", 8);
             }
-            mp.SP--;
-            if (mp.EMT[mp.SP - 1] >= mp.EMT[mp.SP]) {
-                mp.EMT[mp.SP - 1] = 1;
-            } else {
-                mp.EMT[mp.SP - 1] = 0;
+            else {
+                mp.SP--;
+                if (mp.EMT[mp.SP - 1] >= mp.EMT[mp.SP]) mp.EMT[mp.SP - 1] = 1; 
+                else mp.EMT[mp.SP - 1] = 0;
+                mp.PC++;
             }
             break;
 
-        case 3: // Test <=
-            if (mp.SP > MP_SUP){
-                printf("Erreur op[3]: SP depasse la limite sup. de EMT.\n");
-                exit(1);
+        case 3: // <= test
+            if (mp.SP > MP_SUP) { // accessing address(es) out of bounds
+                throw_running_error("[op 3]", 8);
             }
-            if (mp.SP < 2) {
-                printf("Erreur op[3]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
-                exit(1);
+            else if (mp.SP < 2) { // accessing address(es) out of bounds
+                throw_running_error("[op 3]", 8);
             }
-            mp.SP--;
-            if (mp.EMT[mp.SP - 1] <= mp.EMT[mp.SP]) {
-                mp.EMT[mp.SP - 1] = 1;
-            } else {
-                mp.EMT[mp.SP - 1] = 0;
+            else {
+                mp.SP--;
+                if (mp.EMT[mp.SP - 1] <= mp.EMT[mp.SP]) mp.EMT[mp.SP - 1] = 1; 
+                else mp.EMT[mp.SP - 1] = 0;
+                mp.PC++;
             }
             break;
 
-        case 4: // Test >
-            if (mp.SP > MP_SUP){
-                printf("Erreur op[4]: SP depasse la limite sup. de EMT.\n");
-                exit(1);
+        case 4: // > test
+            if (mp.SP > MP_SUP) { // accessing address(es) out of bounds
+                throw_running_error("[op 4]", 8);
             }
-            if (mp.SP < 2) {
-                printf("Erreur op[4]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
-                exit(1);
+            else if (mp.SP < 2) { // accessing address(es) out of bounds
+                throw_running_error("[op 4]", 8);
             }
-            mp.SP--;
-            if (mp.EMT[mp.SP - 1] > mp.EMT[mp.SP]) {
-                mp.EMT[mp.SP - 1] = 1;
-            } else {
-                mp.EMT[mp.SP - 1] = 0;
+            else {
+                mp.SP--;
+                if (mp.EMT[mp.SP - 1] > mp.EMT[mp.SP]) mp.EMT[mp.SP - 1] = 1; 
+                else mp.EMT[mp.SP - 1] = 0;
+                mp.PC++;
             }
             break;
 
-        case 5: // Test <
-            if (mp.SP > MP_SUP){
-                printf("Erreur op[5]: SP depasse la limite sup. de EMT.\n");
-                exit(1);
+        case 5: // < test
+            if (mp.SP > MP_SUP) { // accessing address(es) out of bounds
+                throw_running_error("[op 5]", 8);
             }
-            if (mp.SP < 2) {
-                printf("Erreur op[5]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
-                exit(1);
+            else if (mp.SP < 2) { // accessing address(es) out of bounds
+                throw_running_error("[op 5]", 8);
             }
-            mp.SP--;
-            if (mp.EMT[mp.SP - 1] < mp.EMT[mp.SP]) {
-                mp.EMT[mp.SP - 1] = 1;
-            } else {
-                mp.EMT[mp.SP - 1] = 0;
+            else {
+                mp.SP--;
+                if (mp.EMT[mp.SP - 1] < mp.EMT[mp.SP]) mp.EMT[mp.SP - 1] = 1; 
+                else mp.EMT[mp.SP - 1] = 0;
+                mp.PC++;
             }
             break;
 
         case 6: // | 
-            if (mp.SP > MP_SUP){
-                printf("Erreur op[6]: SP depasse la limite sup. de EMT.\n");
-                exit(1);
+            if (mp.SP > MP_SUP) { // accessing address(es) out of bounds
+                throw_running_error("[op 6]", 8);
             }
-            if (mp.SP < 2) {
-                printf("Erreur op[6]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
-                exit(1);
+            else if (mp.SP < 2) { // accessing address(es) out of bounds
+                throw_running_error("[op 6]", 8);
             }
-            mp.SP--;
-            mp.EMT[mp.SP-1] |= mp.EMT[mp.SP];
+            else {
+                mp.SP--;
+                mp.EMT[mp.SP - 1] |= mp.EMT[mp.SP];
+                mp.PC++;
+            }
             break;
         
         case 7: // ^ 
-            if (mp.SP > MP_SUP){
-                printf("Erreur op[7]: SP depasse la limite sup. de EMT.\n");
-                exit(1);
+            if (mp.SP > MP_SUP) { // accessing address(es) out of bounds
+                throw_running_error("[op 7]", 8);
             }
-            if (mp.SP < 2) {
-                printf("Erreur op[7]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
-                exit(1);
+            else if (mp.SP < 2) { // accessing address(es) out of bounds
+                throw_running_error("[op 7]", 8);
             }
-            mp.SP--;
-            mp.EMT[mp.SP-1] ^= mp.EMT[mp.SP];
+            else {
+                mp.SP--;
+                mp.EMT[mp.SP - 1] ^= mp.EMT[mp.SP];
+                mp.PC++;
+            }
             break;
 
-        case 8: // | 
-            if (mp.SP > MP_SUP){
-                printf("Erreur op[8]: SP depasse la limite sup. de EMT.\n");
-                exit(1);
+        case 8: // &
+            if (mp.SP > MP_SUP) { // accessing address(es) out of bounds
+                throw_running_error("[op 8]", 8);
             }
-            if (mp.SP < 2) {
-                printf("Erreur op[8]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
-                exit(1);
+            else if (mp.SP < 2) { // accessing address(es) out of bounds
+                throw_running_error("[op 8]", 8);
             }
-            mp.SP--;
-            mp.EMT[mp.SP-1] &= mp.EMT[mp.SP];
+            else {
+                mp.SP--;
+                mp.EMT[mp.SP - 1] &= mp.EMT[mp.SP];
+                mp.PC++;
+            }
             break;
 
         case 9: // ~ 
-            if (mp.SP > MP_SUP){
-                printf("Erreur op[9]: SP depasse la limite sup. de EMT.\n");
-                exit(1);
+            if (mp.SP > MP_SUP) { // accessing address out of bounds
+                throw_running_error("[op 9]", 8);
             }
-            if (mp.SP < 2) {
-                printf("Erreur op[9]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
-                exit(1);
+            else if (mp.SP < 1) { // accessing address out of bounds
+                throw_running_error("[op 9]", 8);
             }
-            mp.SP--;
-            mp.EMT[mp.SP-1] = ~(mp.EMT[mp.SP-1]);
+            else {
+                mp.EMT[mp.SP - 1] = ~mp.EMT[mp.SP - 1];
+                mp.PC++;
+            }
             break;
 
-        case 10: // Addition des deux valeurs au sommet 
-            if (mp.SP > MP_SUP){
-                printf("Erreur op[10]: SP depasse la limite sup. de EMT.\n");
-                exit(1);
+        case 10: // add up the two elements at the top of the stack
+            if (mp.SP > MP_SUP) { // accessing address(es) out of bounds
+                throw_running_error("[op 10]", 8);
             }
-            if (mp.SP < 2) {
-                printf("Erreur op[10]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
-                exit(1);
+            else if (mp.SP < 2) { // accessing address(es) out of bounds
+                throw_running_error("[op 10]", 8);
             }
-            mp.SP--;
-            mp.EMT[mp.SP-1] += mp.EMT[mp.SP];
+            else {
+                mp.SP--;
+                mp.EMT[mp.SP - 1] += mp.EMT[mp.SP];
+                mp.PC++;
+            }
             break;
 
-        case 11: // Soustraction des deux valeurs au sommet 
-            if (mp.SP > MP_SUP){
-                printf("Erreur op[11]: SP depasse la limite sup. de EMT.\n");
-                exit(1);
+        case 11: // substract the two elements at the top of the stack 
+            if (mp.SP > MP_SUP) { // accessing address(es) out of bounds
+                throw_running_error("[op 11]", 8);
             }
-            if (mp.SP < 2) {
-                printf("Erreur op[11]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
-                exit(1);
+            else if (mp.SP < 2) { // accessing address(es) out of bounds
+                throw_running_error("[op 11]", 8);
             }
-            mp.SP--;
-            mp.EMT[mp.SP-1] -= mp.EMT[mp.SP];
+            else {
+                mp.SP--;
+                mp.EMT[mp.SP - 1] -= mp.EMT[mp.SP];
+                mp.PC++;
+            }
             break;
 
-        case 12: // Multiplication des deux valeurs au sommet 
-            if (mp.SP > MP_SUP){
-                printf("Erreur op[12]: SP depasse la limite sup. de EMT.\n");
-                exit(1);
+        case 12: // multiply the two elements at the top of the stack  
+            if (mp.SP > MP_SUP) { // accessing address(es) out of bounds
+                throw_running_error("[op 12]", 8);
             }
-            if (mp.SP < 2) {
-                printf("Erreur op[12]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
-                exit(1);
+            else if (mp.SP < 2) { // accessing address(es) out of bounds
+                throw_running_error("[op 12]", 8);
             }
-            mp.SP--;
-            mp.EMT[mp.SP-1] *= mp.EMT[mp.SP];
+            else {
+                mp.SP--;
+                mp.EMT[mp.SP - 1] *= mp.EMT[mp.SP];
+                mp.PC++;
+            }
             break;
 
-        case 13: // Div. Entiere des deux valeurs au sommet 
-            if (mp.SP > MP_SUP){
-                printf("Erreur op[13]: SP depasse la limite sup. de EMT.\n");
-                exit(1);
+        case 13: // whole division between the two elements at the top of the stack
+            if (mp.SP > MP_SUP){ // accessing address(es) out of bounds
+                throw_running_error("[op 13]", 8);
             }
-            if (mp.SP < 2) {
-                printf("Erreur op[13]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
-                exit(1);
+            else if (mp.SP < 2){ // accessing address(es) out of bounds
+                throw_running_error("[op 13]", 8);
             }
-            mp.SP--;
-            mp.EMT[mp.SP-1] /= mp.EMT[mp.SP];
+            else {
+                if (mp.EMT[mp.SP - 1] == 0){    // division by zero
+                    throw_running_error("[op 13]", 9);
+                }
+                else {
+                    mp.SP--;
+                    mp.EMT[mp.SP - 1] /= mp.EMT[mp.SP];
+                    mp.PC++;
+                }
+            }
             break;
 
-        case 14: // Modulo des deux valeurs au sommet 
-            if (mp.SP > MP_SUP){
-                printf("Erreur op[14]: SP depasse la limite sup. de EMT.\n");
-                exit(1);
+        case 14: // Modulo between the two elements at the top of the stack 
+            if (mp.SP > MP_SUP){ // accessing address(es) out of bounds
+                throw_running_error("[op 14]", 8);
             }
-            if (mp.SP < 2) {
-                printf("Erreur op[14]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
-                exit(1);
+            else if (mp.SP < 2){ // accessing address(es) out of bounds
+                throw_running_error("[op 14]", 8);
             }
-            mp.SP--;
-            mp.EMT[mp.SP-1] %= mp.EMT[mp.SP];
+            else {
+                if (mp.EMT[mp.SP - 1] == 0){    // division by zero
+                    throw_running_error("[op 14]", 9);
+                }
+                else {
+                    mp.SP--;
+                    mp.EMT[mp.SP - 1] %= mp.EMT[mp.SP];
+                    mp.PC++;
+                }
+            }
             break;
 
-        case 15: // Inverse la valeur au sommet 
-            if (mp.SP > MP_SUP){
-                printf("Erreur op[15]: SP depasse la limite sup. de EMT.\n");
-                exit(1);
+        case 15: // reverse the element at the top of the stack
+            if (mp.SP > MP_SUP) { // accessing address out of bounds
+                throw_running_error("[op 15]", 8);
             }
-            if (mp.SP < 1) {
-                printf("Erreur op[15]: Pas assez d'elements sur la pile pour effectuer l'operation.\n");
-                exit(1);
+            else if (mp.SP < 1) { // accessing address out of bounds
+                throw_running_error("[op 15]", 8);
             }
-            mp.EMT[mp.SP-1] = -mp.EMT[mp.SP-1];
+            else {
+                mp.EMT[mp.SP - 1] = -mp.EMT[mp.SP - 1];
+                mp.PC++;
+            }
             break;
         
         default:
-            printf("Erreur op[i]: Operation inconnue (%d).\n", i);
+            throw_running_error("[op _]", 10);
             break;
     }
 
