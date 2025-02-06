@@ -11,12 +11,9 @@
 #include "error_checking.h"
 #include "opstring_mapping.h"
 
-regex_t label_regex;
+// regex: regular expression
+extern regex_t label_regex;
 Checking_infos infos;
-
-static inline void init_regex(void){
-    regcomp(&label_regex, LABEL_PATTERN, REG_NOSUB);
-}
 
 static inline void init_checking_infos(void){
     infos.error.err_code = 0;
@@ -35,14 +32,13 @@ static inline void init_checking_infos(void){
 
 int parse(FILE * src, Label_vector * labels){
 
-    init_regex();
     init_checking_infos();
 
     fseek(src, 0, SEEK_SET);
 
     int tmp;
 
-    while ( ! feof(src) == 0 && ! infos.error.err_code) {
+    while ( ! feof(src) && ! infos.error.err_code) {
 
         infos.line_no++;
 
@@ -107,7 +103,7 @@ int parse(FILE * src, Label_vector * labels){
             }
         }
 
-    infos.skip = false;
+        infos.skip = false;
 
     } // end of while loop
 
@@ -116,9 +112,6 @@ int parse(FILE * src, Label_vector * labels){
 
     if ( infos.error.err_code )
         display_err();
-
-    // free regex
-    regfree(&label_regex);
     
     // can execute assemble only if zero is returned
     return infos.error.err_code;
@@ -127,7 +120,6 @@ int parse(FILE * src, Label_vector * labels){
 // can call this functions only if there is no error
 void assemble(FILE * src, FILE * output, Label_vector * labels){
 
-    init_regex();
     init_checking_infos();
 
     fseek(src, 0, SEEK_SET);
@@ -176,13 +168,13 @@ void assemble(FILE * src, FILE * output, Label_vector * labels){
 
                         operand_short = (signed short) strtol(infos.operand, NULL, 10);
 
-                        fprintf(output, "%4.4hx", operand_short);
+                        fprintf(output, " %4.4hx", operand_short);
                     }
 
                     else if ( regexec(&label_regex, infos.operand, 0, NULL, 0) == 0 ){
                         tmp = Label_vector_search(labels, infos.operand);
-                        diff = (signed short) labels->arr[tmp].address - infos.address - 1;
-                        fprintf(output, "%4.4hx", diff);
+                        diff = (signed short) ( labels->arr[tmp].address - infos.address - 1);
+                        fprintf(output, " %4.4hx", diff);
                     }
                 }
                 

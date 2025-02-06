@@ -4,7 +4,6 @@
 #include "Error.h"
 #include "Label_vector.h"
 
-extern regex_t label_regex;
 extern Checking_infos infos;
 
 /**

@@ -5,10 +5,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <regex.h>
 
 #include "assembler/assembler.h"
 #include "assembler/Label_vector.h"
 #include "runtime/runtime.h"
+
+regex_t label_regex;
 
 int main(int argc, char ** argv){
 
@@ -38,6 +41,8 @@ int main(int argc, char ** argv){
         exit(EXIT_FAILURE);
     }
 
+    regcomp(&label_regex, LABEL_PATTERN, REG_NOSUB);
+
     // parsing and assembling
     // parsing is reading the input source code to verify the absence of error
 
@@ -58,6 +63,8 @@ int main(int argc, char ** argv){
 
     // must be called when the variable is useless to free dynamically allocated memory (malloc --> free)
     Label_vector_deconstruct(&labels);
+
+    regfree(&label_regex);
 
     // // if no error (response is 0), begin execution of ./hexa.txt
     // if (response == 0)

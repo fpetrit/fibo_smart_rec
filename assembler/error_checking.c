@@ -21,6 +21,8 @@
 /// @brief Defined in @ref assembler.c to pass all the extraction buffers to the parse underlying functions.
 extern Checking_infos infos;
 
+extern regex_t label_regex;
+
 
 /**
  * @brief Used by @ref check_opcode_operand to know what operand is expected for each opcode.
@@ -168,9 +170,9 @@ void check_labels(Label_vector * labels)
         // necessary because it is used by set_error to display an error
         infos.line_no = labels->arr[i].line_no;
 
-        // label address have never been set, label has never been declared but is referenced, error
+        // label has never been declared but is referenced, error
         if (labels->arr[i].address == -1){
-            set_error(LABEL_ALREADY_DEFINED, labels->arr[i].name);
+            set_error(UNDECLARED_LABEL, labels->arr[i].name);
         }
 
         i++;
