@@ -18,74 +18,64 @@ static inline void init_regex(void){
     regcomp(&label_regex, LABEL_PATTERN, REG_NOSUB);
 }
 
+static inline void init_checking_infos(void){
+    infos.error.err_code = 0;
+    infos.skip = false;
+
+    *infos.line = '\0';
+    infos.line_no = 0;
+    infos.len = 0;
+    infos.address = -1;
+
+    *infos.label = '\0';
+    *infos.opstring = '\0';
+    *infos.operand = '\0';
+}
+
 
 int parse(FILE * src, Label_vector * labels){
 
     init_regex();
+    init_checking_infos();
 
     fseek(src, 0, SEEK_SET);
 
-    char line[LINE_MAX_LEN + 1];
-    int length;
-    unsigned int line_no = 0;
-    int address = -1;
-
-    char label[LABEL_MAX_LEN + 1];
-    char opstring[OPSTRING_MAX_LENGTH + 1];
-    char operand[LABEL_MAX_LEN];
-    int operand_len;
-    unsigned char opcode;
-
     int tmp;
 
-    // in case of no data, because line will be printed
-    length = 0;
-    line[0] = '\0';
+    while ( ! feof(src) == 0 && ! infos.error.err_code) {
 
-    infos.error.err_code = 0;
-    infos.skip = false;
-    infos.line = line;
-    infos.len = &length;
-    infos.line_no = &line_no;
-
-    while ( feof(src) == 0 && ! infos.error.err_code){
-
-        line_no++;
+        infos.line_no++;
 
         // the last non NULL char is '\n' if not eof
-        fgets(line, LINE_MAX_LEN + 1, src);
-
-        length = len(line);
+        fgets(infos.line, LINE_MAX_LEN, src);
 
         // GETTING DATA AND CHECKING SYNTAX ERRORS
 
-        extract_line(true, label, opstring, operand);
+        extract_line(true);
 
         // if the line is correct and contains data
         if (! infos.skip){
 
-            operand_len = len(operand);
+            if (*infos.opstring){
 
-            if (*opstring){
-
-                address++;
-                opcode = opstring_to_opcode(opstring, len(opstring));
-                check_opcode_operand(opcode, operand, operand_len);
+                infos.address++;
+                infos.opcode = opstring_to_opcode(infos.opstring, strlen(infos.opstring) );
+                check_opcode_operand();
 
                 if ( ! infos.skip ){
 
                     // a label is being referenced OR THE OPERAND IS A DECIMAL ADRESS OFFSET
-                    if (opcode == 5 || opcode == 6 || opcode == 7){
+                    if (infos.opcode == 5 ||infos.opcode == 6 || infos.opcode == 7){
 
                         // if the operand is a label, must be registered to check further declaration
                         // else: nothing, checking by check_opcode_operand already done
-                        if ( regexec(&label_regex, operand, 0, NULL, 0) == 0 ) {
+                        if ( regexec(&label_regex, infos.operand, 0, NULL, 0) == 0 ) {
 
-                            tmp = Label_vector_search(labels, operand);
+                            tmp = Label_vector_search(labels, infos.operand);
 
                             // if label has never been declared
                             if ( tmp == -1)
-                                Label_vector_create_label(labels, operand, -1, line_no);
+                                Label_vector_create_label(labels, infos.operand, -1, infos.line_no);
                                 // if there is no further declaration, adress will remained -1 and it will be detected during check_labels
                             
                             // else:
@@ -96,23 +86,24 @@ int parse(FILE * src, Label_vector * labels){
             }
 
             // if there is a label declaration
-            if ( ! infos.skip && *label ){
-                tmp = Label_vector_search(labels, label);
+            if ( ! infos.skip && *infos.label ){
+                tmp = Label_vector_search(labels, infos.label);
 
                 // label already referenced: must set the adress
                 if (tmp != -1){
 
                     // label has already been defined, else we can assign address
                     if (labels->arr[tmp].address != -1){
-                        set_error(6, labels->arr[tmp].name);
+                        set_error(LABEL_ALREADY_DEFINED, labels->arr[tmp].name);
+                        
                     } else {
-                        labels->arr[tmp].address = address;
+                        labels->arr[tmp].address = infos.address;
                     }
                 }
 
                 // label has never been referenced: we create the label and set the adress
                 else
-                    Label_vector_create_label(labels, label, address, line_no);
+                    Label_vector_create_label(labels, infos.label, infos.address, infos.line_no);
             }
         }
 
@@ -137,79 +128,61 @@ int parse(FILE * src, Label_vector * labels){
 void assemble(FILE * src, FILE * output, Label_vector * labels){
 
     init_regex();
+    init_checking_infos();
 
     fseek(src, 0, SEEK_SET);
     fseek(output, 0, SEEK_SET);
 
-    char line[LINE_MAX_LEN + 1];
-    int length;
-    unsigned int line_no = 0;
-    int address = -1;
-
-    char label[LABEL_MAX_LEN + 1];
-    char opstring[OPSTRING_MAX_LENGTH + 1];
-    char operand[LABEL_MAX_LEN];
     int operand_len;
+
     signed short operand_short;
     unsigned char opcode;
 
-    char opcode_hex[3];
-    char operand_hex[5];
-
-    length = 0;
-    line[0] = '\0';
-
     int tmp;
     signed short diff;
-
-    infos.line = line;
-    infos.len = &length;
-    infos.line_no = &line_no;
 
     while ( ! feof(src) ){
 
         infos.skip = false;
 
-        line_no++;
+        infos.line_no++;
 
-        fgets(line, LINE_MAX_LEN + 1, src);
+        // read LINE_MAX_LEN bytes max
+        fgets(infos.line, LINE_MAX_LEN + 1, src);
 
-        length = len(line);
+        infos.len = strlen(infos.line);
 
-        extract_line(false, label, opstring, operand);
+        // extract data without error checkings
+        extract_line(false);
 
         if (! infos.skip){
 
-            operand_len = len(operand);
+            operand_len = strlen(infos.operand);
 
-            if ( *opstring ){
+            if ( *infos.opstring ){
 
-                address++;
+                infos.address++;
 
-                if (address)
+                if (infos.address)
                     fprintf(output, "\n");
 
-                opcode = opstring_to_opcode(opstring, len(opstring));
-                uchar_to_hex_string(opcode, opcode_hex);
+                opcode = opstring_to_opcode(infos.opstring, strlen(infos.opstring));
 
-                fprintf(output, "%s", opcode_hex);
+                fprintf(output, "%2.2hhx", opcode);
 
-                if ( *operand ){
+                if ( *infos.operand ){
 
-                    if ( is_signed_short(operand, operand_len) ){
+                    if ( is_signed_short(infos.operand, operand_len) ){
 
-                        operand_short = (signed short) strtol(operand, NULL, 10);
-                        short_to_hex_string(operand_short, operand_hex);
+                        operand_short = (signed short) strtol(infos.operand, NULL, 10);
 
-                        fprintf(output, " %s", operand_hex);
+                        fprintf(output, "%4.4hx", operand_short);
                     }
 
-                    else if ( regexec(&label_regex, operand, 0, NULL, 0) == 0 ){
-                        tmp = Label_vector_search(labels, operand);
-                        // implicit cast, no error ?
-                        diff = labels->arr[tmp].address - address - 1;
-                        short_to_hex_string(diff, operand_hex);
-                        fprintf(output, " %s", operand_hex);
+                    else if ( regexec(&label_regex, infos.operand, 0, NULL, 0) == 0 ){
+                        tmp = Label_vector_search(labels, infos.operand);
+                        diff = (signed short) labels->arr[tmp].address - infos.address - 1;
+                        fprintf(output, "%4.4hx", diff);
                     }
                 }
                 
@@ -218,7 +191,4 @@ void assemble(FILE * src, FILE * output, Label_vector * labels){
             }
         }
     }
-
-    regfree(&label_regex);
-
-    }
+}

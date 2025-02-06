@@ -3,32 +3,26 @@
 
 #include <stdio.h>
 #include "Label_vector.h"
+#include "Error.h"
 
-/** SIGNED / UNSIGNED INTEGERS HEXA CONVERSION
- *
- * the string argument shoud be at least of length:
- * - 5 for operand in hexa
- * - 3 (2 digits, a null byte) for an opcode
- */
-static inline void short_to_hex_string(signed short n, char * s){
-    sprintf(s, "%4.4hx", n);
-}
+// just holding locally declared data to pass it to underlying functions in one argument
+typedef struct {
 
-static inline void uchar_to_hex_string(unsigned char n, char * s){
-    sprintf(s, "%2.2hhx", n);
-}
+    Error error;
+    bool skip;
 
-static inline void short_to_str(signed short number, char * s){
-    sprintf(s, "%d", number);
-}
+    char line[LINE_MAX_LEN + 1];
+    unsigned int line_no;
+    int len;
+    int address;
 
-static inline int len(char * s){
-    int i = 0;
-    while (s[i] != '\0'){
-        i++;
-    }
-    return i;
-}
+    char label[LABEL_MAX_LEN + 1];
+    char opstring[OPSTRING_MAX_LENGTH + 1];
+    char operand[LABEL_MAX_LEN + 1];
+    unsigned char opcode;
+    
+} Checking_infos ;
+
 
 void assemble(FILE * src, FILE * output, Label_vector * labels);
 
