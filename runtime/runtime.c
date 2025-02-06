@@ -161,10 +161,10 @@ void jnz(short adr){          /*Faire attention au cas ou PC sort de l'intervall
     else {
         mp.SP--;
         if (mp.EMT[mp.SP]){
-            if (((mp.PC + adr) >= v->count) || ((mp.PC + adr) < 0)){ // faut initialiser ici une variable globale representant le vecteur d'instructions pour que ca marche
-                throw_running_error("[jnz]", 6);
-            }
-            else if (adr == -1){    // infinite loop on the same instruction
+            // if (((mp.PC + adr) >= v->count) || ((mp.PC + adr) < 0)){ // faut initialiser ici une variable globale representant le vecteur d'instructions pour que ca marche
+            //     throw_running_error("[jnz]", 6);
+            // }
+            if (adr == -1){    // infinite loop on the same instruction
                 throw_running_error("[jnz]", 7);
             }
             else {  
@@ -179,25 +179,23 @@ void jnz(short adr){          /*Faire attention au cas ou PC sort de l'intervall
 
 
 void call(short adr) {
-    if (mp.SP <0 || mp.SP >= MP_SUP){
-        printf("Erreur [call]: SP en dehors de la Pile\n");
-        exit(1);
-    }
-    if(mp.PC < SHRT_MIN || mp.PC > SHRT_MAX){
-        printf("Erreur [call]: mp.PC n'est pas un short pour etre stocker sur la Pile");
-        exit(1);
+    if (mp.SP >= MP_SUP){
+        throw_running_error("[call]", 4);
     }
     // Empiler PC sur la pile
     mp.EMT[mp.SP++] = mp.PC;            
     // Ajouter adr au registre PC
-    mp.PC += adr;   /*on pourrait afficher un warning puisque PC sera bcp trop en dehors de la Pile mais sa fera trop de warnings si on effectue la tache bcp trop de fois*/
+    if (adr == 0){    // infinite loop on the same instruction
+        throw_running_error("[call]", 7);
+    }
+    else mp.PC += adr;   /*on pourrait afficher un warning puisque PC sera bcp trop en dehors de la Pile mais sa fera trop de warnings si on effectue la tache bcp trop de fois*/
 
 }
 
 
 
 void ret(short){
-    /*Demander au prof*/
+    
 }
 
 
