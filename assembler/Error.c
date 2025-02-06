@@ -21,7 +21,7 @@ static const char * err_codes[] = {
 
 
 void display_err(void){
-    fprintf(stderr, "In line %d: %s\nError no. %d: q%s.\n", infos.error.line_no, infos.error.line, infos.error.err_code, err_codes[infos.error.err_code]);
+    fprintf(stderr, "In line %d: %s\nError no. %d: %s.\n", infos.error.line_no, infos.error.line, infos.error.err_code, err_codes[infos.error.err_code]);
     if (*infos.error.word)
         fprintf(stderr, "---> %s\n", infos.error.word);
     fprintf(stderr, "\n");

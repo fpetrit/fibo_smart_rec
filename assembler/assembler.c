@@ -11,10 +11,13 @@
 #include "error_checking.h"
 #include "opstring_mapping.h"
 
-// regex: regular expression
+/// @brief Globally defined regex_t variable in @ref main.c.
 extern regex_t label_regex;
+
+/// @brief See @ref Checking_infos.
 Checking_infos infos;
 
+/// @brief Resets all the buffers in @ref Checking_info.  
 static inline void init_checking_infos(void){
     infos.error.err_code = 0;
     infos.skip = false;
