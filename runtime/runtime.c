@@ -156,7 +156,7 @@ void jmp(short adr){
 
 void jnz(short adr){          /*Faire attention au cas ou PC sort de l'intervalle permis*/
     if (mp.SP <= 0) {  // adress(es) out of bounds
-        throw_running_error("[jnz]", 8);
+        throw_running_error("[jnz]", 3);
     }
     else {
         mp.SP--;
@@ -183,9 +183,9 @@ void call(short adr) {
         throw_running_error("[call]", 4);
     }
     // Empiler PC sur la pile
-    mp.EMT[mp.SP++] = mp.PC;            
+    mp.EMT[mp.SP++] = ++mp.PC; //on empile la valeur de l'instruction apres le call           
     // Ajouter adr au registre PC
-    if (adr == 0){    // infinite loop on the same instruction
+    if (adr == - 1){    // infinite loop on the same instruction
         throw_running_error("[call]", 7);
     }
     else mp.PC += adr;   /*on pourrait afficher un warning puisque PC sera bcp trop en dehors de la Pile mais sa fera trop de warnings si on effectue la tache bcp trop de fois*/
@@ -194,8 +194,14 @@ void call(short adr) {
 
 
 
-void ret(short){
-    
+void ret(short x){
+    if (mp.PC == v->count){ // Pc is pointing to smth out of bounds
+        throw_running_error("[ret]", 8);
+    }
+    else{
+        mp.SP--;
+        mp.PC = mp.EMT[mp.SP];
+    }
 }
 
 
