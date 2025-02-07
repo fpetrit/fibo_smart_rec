@@ -16,7 +16,7 @@ static inline int new_length(int length){
 }
 
 void Label_vector_init(Label_vector * vect){
-    vect->arr = malloc(sizeof(Label) * vect->length);
+    vect->arr = malloc(sizeof(Label) * VECTOR_INITIAL_LENGTH);
     vect->length = vect->arr ? VECTOR_INITIAL_LENGTH : 0;
     vect->count = 0;
 }

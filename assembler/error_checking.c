@@ -72,12 +72,13 @@ static inline void read_word(char * word_tmp, char ** line_tmp_p, int * word_tmp
  */
 static void extract_label(bool verif, char * word_tmp, int * word_tmp_len){
 
-    if ( word_tmp_len > 0 ){
+    if ( *word_tmp_len > 0 ){
         
         // label detection trigger
-        if (word_tmp[*word_tmp_len - 1] == ':'){
+        // !!! * and - operators precedences are equal, associativity is right to left
+        if (word_tmp[ (*word_tmp_len) - 1] == ':'){
 
-            word_tmp[*word_tmp_len - 1] = '\0';
+            word_tmp[ (*word_tmp_len) - 1] = '\0';
 
             // !!! * operator precedence is less than -- suffix operator
             (*word_tmp_len) -- ;
@@ -102,6 +103,7 @@ void extract_line(bool verif) {
     int line_tmp_len = infos.len;
 
     char word_tmp[LABEL_MAX_LEN];
+    memset(word_tmp, 0, LABEL_MAX_LEN);
     int word_tmp_len = 0;
 
     int tmp = 0;

@@ -4,7 +4,7 @@
 #include <time.h>
 
 #include "runtime.h"
-#include "Instruction_label.h"
+#include "Instruction_vector.h"
 #include "../constants.h"
 
 
@@ -207,6 +207,7 @@ void read(short x){
 
     if ( 0 <= x && x < MP_SUP){
         long input ;
+        printf("Enter a short: ");
         scanf("%ld", &input);
         while (getchar() != '\n');
         short a = input;
@@ -230,7 +231,7 @@ void write(short x){
 }
 
 void op(short i) {  // ATTENTION TRAVAILLER LE CAS OU Y A QUE UN ELEMENT DANS LE STACKKK et divsion par 0
-    if (mp.SP < 2) {   // accessing address(es) out of bounds
+    if (mp.SP < 2 && i != 9 && i != 15) {   // accessing address(es) out of bounds
         throw_running_error("[op]", 11, i);
     }
     else {
@@ -448,7 +449,7 @@ void run(FILE * hexa){
     mp.SP = 0;
 
     Instruction_vector instructions;
-    //Instruction_vector_init(&instructions);
+    Instruction_vector_init(&instructions);
 
     // fseek: reset the file cursor at the specified position
     // SEEK_SET is a constant definied in the standard lib

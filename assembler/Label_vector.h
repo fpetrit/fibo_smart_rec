@@ -14,7 +14,7 @@
  */
 typedef struct {
 
-    char name[LABEL_MAX_LEN + 1];
+    char name[LABEL_MAX_LEN + 2];
     int address;
     unsigned int line_no;
 
