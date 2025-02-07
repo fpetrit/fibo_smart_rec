@@ -134,12 +134,13 @@ void jnz(short x){
         throw_running_error("[jnz]", 3);
 
     else {
+        // pop in all cases
         mp.SP--;
         // avoid any infinite loop
         if (x == -1)    
             throw_running_error("[jnz]", 7);
         else
-            mp.PC += x;    
+            mp.PC += mp.EMT[mp.SP] != 0 ? x : 0;    
     }
 }
 
@@ -170,7 +171,7 @@ void read(short x){
 
     if ( 0 <= x && x <= MP_SUP){
 
-        char response = 'n';
+        char response = 'y';
 
         if (x < mp.SP) {
             printf("Warning: you are modifying a value stored in the stack. Continue ? [y/n] ");
@@ -199,11 +200,9 @@ void read(short x){
 }
 
 void write(short x){
-    if (0 <= x && x < MP_SUP) {
+    if (0 <= x && x < MP_SUP)
         printf("Value at address %d: %hd\n", x, mp.EMT[x]);
         
-    }
-
     // invalid address
     else throw_running_error("[write]", 2); 
 }
@@ -414,7 +413,7 @@ void run(FILE * hexa){
     while ( 0 <= mp.PC && mp.PC < instructions.count && instructions.arr[mp.PC].opcode != 99 && ! mp.error) {
 
         opcode = instructions.arr[mp.PC].opcode;
-        operand = instructions.arr[mp.PC].operand;
+        operand = instructions.arr[mp.PC].operand; 
 
         // instruction execution
         mp_functions[opcode](operand);
