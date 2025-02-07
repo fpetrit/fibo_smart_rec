@@ -53,10 +53,25 @@ static inline void read_word(char * word_tmp, char ** line_tmp_p, int * word_tmp
 
     *line_tmp_len = strlen(*line_tmp_p);
 
-    sscanf(*line_tmp_p, " %s%n", word_tmp, word_tmp_len);
+    int a = sscanf(*line_tmp_p, " %s%n", word_tmp, word_tmp_len);
+
+    // if the infos.line ends with spaces and no newline, word_tmp_len is not set, word_tmp not modified
+    // the input ends before the first conversion has compeleted
+
+    /** SOURCE: https://man7.org/linux/man-pages/man3/fscanf.3p.html
+        If the input ends before the first conversion (if any) has completed,
+        and without a matching failure having occurred, EOF shall be
+        returned. If an error occurs before the first conversion (if any)
+        has completed, and without a matching failure having occurred, EOF
+        shall be returned and errno shall be set to indicate the error.
+    */
+
+    if (a == EOF) {
+        *word_tmp_len = 0;
+    }
 
     // if the input *line_tmp_p string is empty, *word_tmp_len is not set to 0 by sscanf
-    if (**line_tmp_p == '\0') {
+    if (**line_tmp_p == '\0' || ) {
         *word_tmp_len = 0;
         *word_tmp = '\0';
     }
@@ -148,9 +163,12 @@ void extract_line(bool verif) {
                 strcpy(infos.operand, word_tmp);
             }
 
-            sscanf(line_tmp_p, " %s%n", word_tmp, &tmp);
+            // at this point, nothing is expected in line_tmp_p
+            // reset tmp to an non zero value
+            tmp = 1;
+            int a = sscanf(line_tmp_p, " %s%n", word_tmp, &tmp);
 
-            if (verif && tmp != 0){
+            if ( verif && a != EOF && tmp != 0){
                 set_error(WRONG_SYNTAX, line_tmp_p);
             }
         }
