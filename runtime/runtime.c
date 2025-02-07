@@ -152,7 +152,7 @@ void call(short x) {
     }
     
     // push PC onto the stack
-    mp.EMT[mp.SP++] = mp.PC;            
+    mp.EMT[mp.SP++] = mp.PC - 1;            
     
     // avoid any infinite loop
     if (x == -1){   
@@ -348,17 +348,19 @@ void rnd(short x){
 
 void dup(short x){
 
-    if (mp.SP >= MP_SUP) // stack overflow
+    // stack overflow
+    if (mp.SP >= MP_SUP)
         throw_running_error("[dup]", 4);
     
-    else if ( mp.PC < 1 )
+    // stack underflow
+    else if ( mp.SP < 1 )
         throw_running_error("[dup]", 3);
 
     else {
         // !!! do not write mp.EMT[mp.SP++] = ... (-Wsequence-point), as the order of operations executions is undefined
         // SP is modified and read in the same statement
         mp.EMT[mp.SP] = mp.EMT[mp.SP - 1];
-        mp.PC++;
+        mp.SP++;
     }
         
 }
@@ -384,6 +386,9 @@ void run(FILE * hexa){
 
     short memory[MP_SUP];
     mp.EMT = memory;
+
+    mp.PC = 0;
+    mp.SP = 0;
 
     Instruction_vector instructions;
     Instruction_vector_init(&instructions);
@@ -415,11 +420,11 @@ void run(FILE * hexa){
         opcode = instructions.arr[mp.PC].opcode;
         operand = instructions.arr[mp.PC].operand; 
 
-        // instruction execution
-        mp_functions[opcode](operand);
-
         // PC incrmements are managed externally by the run function
         mp.PC ++;
+
+        // instruction execution
+        mp_functions[opcode](operand);
     }
 
     // must call this function because of malloc call during init
