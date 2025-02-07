@@ -66,9 +66,9 @@ int main(int argc, char ** argv){
 
     regfree(&label_regex);
 
-    // // if no error (response is 0), begin execution of ./hexa.txt
-    // if (response == 0)
-    //     run(output);
+    // if no error (response is 0), begin execution of ./hexa.txt
+    if (response == 0)
+        run(output);
 
     fclose(output);
 

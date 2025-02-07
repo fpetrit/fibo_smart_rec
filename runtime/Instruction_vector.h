@@ -1,5 +1,5 @@
-#ifndef INSTRUCTION_H
-#define INSTRUCTION_H
+#ifndef INSTRUCTION_VECTOR_H
+#define INSTRUCTION_VECTOR_H
 
 #include <stdio.h>
 #include <stdlib.h>
