@@ -243,7 +243,7 @@ void read_new(short x){
         long long int input = SHRT_MAX + 1;
 
         while ( ! ( SHRT_MIN <= input && input <= SHRT_MAX) ) {
-            printf("Input (2 bytes max):\n");
+            printf("Input (2 bytes max): ");
             scanf("%lli", &input);
         }
 
@@ -616,7 +616,8 @@ const void (*mp_functions[15])(short) = {
 
 void run(FILE * hexa){
 
-    mp.EMT = init_mp();
+    short memory[MP_SUP];
+    mp.EMT = memory;
 
     Instruction_vector instructions;
     Instruction_vector_init(&instructions);
@@ -637,15 +638,11 @@ void run(FILE * hexa){
         fscanf(hexa, " %hhx %hx", &opcode, &operand);
 
         // this fills an Instruction structure stored in the instructions.arr array
-        // the index in this array of the Instruction is its ADDRESS (line_no - 1, in the hexa file)
         // if the vector is full, the available size automatically increases (vector)
         Instruction_vector_append(&instructions, opcode, operand);
     }
 
     // running the instructions
-    // warning: possibly an ininite loop if there is no halt in instructions
-    // other program ending condition ?
-
     // while the instruction is not halt, and address in the right range
     while ( mp.PC < instructions.count && instructions.arr[mp.PC].opcode != 99 && ! mp.error){
 
