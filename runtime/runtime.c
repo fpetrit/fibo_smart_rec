@@ -194,48 +194,48 @@ void call(short adr) {
 
 
 
-void ret(short){
+// void ret(short){
     
-}
+// }
 
 
 // on pourra la remplacer par read_new juste en dessous ?
+// void read(short x){
+
+//     //Boucle pour s'assurer que l'utilisateur rentre bien un short
+
+//     while (1) {
+//         printf("Entrer une valeur (short) a placer dans la variable a l'adresse %d: \n", x);
+
+//         // Lire l'entree avec %hi
+//         // x n'a pas été testé, seg fault si supérieur à 5000 ?
+//         // en vrai pas besoin de tester le nombre d'entrée aussi osef on n'en lit qu'une
+//         short retour_scanf = scanf("%hi", &(mp.EMT[x]));
+
+//         if (retour_scanf == 1) {    //(verifier qu'on a une seule entree)
+//             // Verification des limites de short
+//             // ça ne marchera pas car l'entrée saisie par l'utilisateur a déja été mise dans la variable qui est de type short --> dépassemment de short déja commis
+//             // il ne sera pas détéctable car la valeur "boucle" dans la fourchette de nombres valides pour le type
+//             if (mp.EMT[x] >= SHRT_MIN && mp.EMT[x] <= SHRT_MAX) {
+//                 break;
+//             } else {
+//                 printf("Erreur : la valeur doit être comprise entre %d et %d.\n", SHRT_MIN, SHRT_MAX);
+//             }
+//         } else {
+//             printf("Erreur : veuillez entrer un nombre entier valide (short).\n");
+
+//             // Vider le buffer d'entree
+//             // il se videra petit a petit dans une seule boucle ou alors la premiere valeur valide sera choisie en input
+//             while (getchar() != '\n');
+//         }
+//     }
+
+//     mp.PC++;
+// }
+
+
+
 void read(short x){
-
-    //Boucle pour s'assurer que l'utilisateur rentre bien un short
-
-    while (1) {
-        printf("Entrer une valeur (short) a placer dans la variable a l'adresse %d: \n", x);
-
-        // Lire l'entree avec %hi
-        // x n'a pas été testé, seg fault si supérieur à 5000 ?
-        // en vrai pas besoin de tester le nombre d'entrée aussi osef on n'en lit qu'une
-        short retour_scanf = scanf("%hi", &(mp.EMT[x]));
-
-        if (retour_scanf == 1) {    //(verifier qu'on a une seule entree)
-            // Verification des limites de short
-            // ça ne marchera pas car l'entrée saisie par l'utilisateur a déja été mise dans la variable qui est de type short --> dépassemment de short déja commis
-            // il ne sera pas détéctable car la valeur "boucle" dans la fourchette de nombres valides pour le type
-            if (mp.EMT[x] >= SHRT_MIN && mp.EMT[x] <= SHRT_MAX) {
-                break;
-            } else {
-                printf("Erreur : la valeur doit être comprise entre %d et %d.\n", SHRT_MIN, SHRT_MAX);
-            }
-        } else {
-            printf("Erreur : veuillez entrer un nombre entier valide (short).\n");
-
-            // Vider le buffer d'entree
-            // il se videra petit a petit dans une seule boucle ou alors la premiere valeur valide sera choisie en input
-            while (getchar() != '\n');
-        }
-    }
-
-    mp.PC++;
-}
-
-
-
-void read_new(short x){
 
     if ( 0 <= x && x <= MP_SUP){
         long long int input = SHRT_MAX + 1;
@@ -547,53 +547,6 @@ void dup(short x){
     }
 }
 
-void halt(short x){
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}
-
-/*ptet c mieux dinitilaiser dans la struct de MP PC et SP en tant que shorts*/
-// int main(short){
-//     mp.EMT = init_mp();  /*Allouer la memoire dynamique pour l espace memoire de stockage*/
-//     mp.EMT[0] = 0;
-//     mp.EMT[1] = 2;
-//     mp.EMT[2] = 4;
-//     mp.EMT[3] = 6;
-//     mp.EMT[4] = 8;
-
-//     printf("%d\n", mp.SP);
-//     printf("%d\n", mp.PC);
-
-//     push(2);
-//     printf("%d\n%d\n",mp.SP, mp.PC);
-//     printf("%d\n", mp.EMT[0]);
-//     //jmp(2);
-//     //printf("%d\n%d\n", mp.SP, mp.PC);
-//     //pop(4999);
-//     //printf("%d\n", mp.EMT[4999]);
-//     //pop(4998);
-//     //printf("%d\n", mp.EMT[4998]);
-//     //pop(4997);
-//     mp.SP = 1;
-//     op(0);
-// }
-
-
 const void (*mp_functions[15])(short) = {
     pop,
     ipop,
@@ -642,7 +595,7 @@ void run(FILE * hexa){
 
     // running the instructions
     // while the instruction is not halt, and address in the right range
-    while ( mp.PC < instructions.count && instructions.arr[mp.PC].opcode != 99 && ! mp.error){
+    while ( 0 <= mp.PC && mp.PC < instructions.count && instructions.arr[mp.PC].opcode != 99 && ! mp.error){
 
         opcode = instructions.arr[mp.PC].opcode;
         operand = instructions.arr[mp.PC].operand;
