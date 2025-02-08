@@ -51,9 +51,10 @@ static inline void remove_final_new_line(char * s){
  */
 static inline void read_word(char * word_tmp, char ** line_tmp_p, int * word_tmp_len, int * line_tmp_len){
 
+    int read_char_no = 0;
     *line_tmp_len = strlen(*line_tmp_p);
 
-    int a = sscanf(*line_tmp_p, " %s%n", word_tmp, word_tmp_len);
+    int a = sscanf(*line_tmp_p, " %s%n", word_tmp, &read_char_no);
 
     // if the infos.line ends with spaces and no newline, word_tmp_len is not set, word_tmp not modified
     // the input ends before the first conversion has compeleted
@@ -72,8 +73,11 @@ static inline void read_word(char * word_tmp, char ** line_tmp_p, int * word_tmp
         *word_tmp = '\0';
     }
 
-    *line_tmp_p += *word_tmp_len;
-    *line_tmp_len -= *word_tmp_len;
+    *line_tmp_p += read_char_no;
+    *line_tmp_len -= read_char_no;
+
+    // cannot use read_char_no because %n conversion specifier counts the blank chararcters
+    *word_tmp_len = strlen(word_tmp);
 }
 
 
