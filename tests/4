@@ -1,0 +1,8 @@
+here:    read 1000
+         push 1000
+         write 1000
+         read 1000
+         push 1000
+         jmp -1
+         jmp fin
+fin:     halt

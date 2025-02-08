@@ -5,4 +5,4 @@ boucle: rnd 300
         read 1003
         push 1003
         jnz boucle
-halt
+        halt

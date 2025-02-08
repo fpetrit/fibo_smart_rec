@@ -43,9 +43,20 @@ int parse(FILE * src, Label_vector * labels){
 
     while ( ! feof(src) && ! infos.error.err_code) {
 
+        // Source: https://man7.org/linux/man-pages/man3/fgets.3p.html
+        // If the end-of-file condition is encountered
+        // before any bytes are read, the contents of the array pointed to by
+        // s shall not be changed.
+
+        // very important
+        // without this affectation, if the last character of src was a '\n'
+        // the last instruction was duplicated in the hexa compiled file
+        // infos.line was left unchanged from the previous instruction
+        *infos.line = '\0';
+
         infos.line_no++;
 
-        // the last non NULL char is '\n' if not eof
+        // the last non NULL char is '\n' if no eof condition oncountered
         fgets(infos.line, LINE_MAX_LEN, src);
 
         // GETTING DATA AND CHECKING SYNTAX ERRORS
@@ -141,6 +152,17 @@ void assemble(FILE * src, FILE * output, Label_vector * labels){
         infos.skip = false;
 
         infos.line_no++;
+
+        // Source: https://man7.org/linux/man-pages/man3/fgets.3p.html
+        // If the end-of-file condition is encountered
+        // before any bytes are read, the contents of the array pointed to by
+        // s shall not be changed.
+
+        // very important
+        // without this affectation, if the last character of src was a '\n'
+        // the last instruction was duplicated in the hexa compiled file
+        // infos.line was left unchanged from the previous instruction
+        *infos.line = '\0';
 
         // read LINE_MAX_LEN bytes max
         fgets(infos.line, LINE_MAX_LEN + 1, src);

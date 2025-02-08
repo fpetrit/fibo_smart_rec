@@ -9,18 +9,19 @@
 
 
 const char * errors[] = {
-    "", // errcode 0 means no error                                                                             // 0
-    "dynamic memory allocation failed",                                                                         // 1
-    "memory address out of range",                                                                              // 2
-    "stack underflow",                                                                                          // 3
-    "stack overflow",                                                                                           // 4
-    "the program counter register value is not a valid short, hence it cannot be stored in the stack",          // 5
-    "PC out of bounds",                                                                                         // 6
-    "infinte loop on the same instruction",                                                                     // 7
-    "accessing memory out of range",                                                                            // 8
-    "division by zero in op %d",                                                                                // 9
-    "unknown operation: op %d",                                                                                 // 10
-    "stack underflow in op %d",                                                                                 // 11
+    "", // errcode 0 means no error                                                                                 // 0
+    "dynamic memory allocation failed",                                                                             // 1
+    "memory address out of range",                                                                                  // 2
+    "stack underflow",                                                                                              // 3
+    "stack overflow",                                                                                               // 4
+    "the program counter register value is not a valid short, hence it cannot be stored in the stack",              // 5
+    "PC out of bounds",                                                                                             // 6
+    "infinte loop on the same instruction",                                                                         // 7
+    "accessing memory out of range",                                                                                // 8
+    "division by zero in op %d",                                                                                    // 9
+    "unknown operation: op %d",                                                                                     // 10
+    "stack underflow in op %d",                                                                                     // 11
+    "the process exited because it ran out of instructions (no halt) or because of a jump to an illegal address (no. %d)",  // 12
 };
 
 // necessary to allocate memory for EMT with init_mp
@@ -466,11 +467,12 @@ void run(FILE * hexa){
         operand = instructions.arr[mp.PC].operand;
         mp.PC++;
 
-        // PC is managed by the mp_functions functions individually
         // instruction execution
         mp_functions[opcode](operand);
-
     }
+
+    if (! mp.error && instructions.arr[mp.PC].opcode != 99)
+        throw_running_error("[runtime]", 12, mp.PC);
 
     // must call this function because of malloc call during init
     Instruction_vector_deconstruct(&instructions);
