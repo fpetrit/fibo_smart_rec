@@ -66,12 +66,8 @@ static inline void read_word(char * word_tmp, char ** line_tmp_p, int * word_tmp
         shall be returned and errno shall be set to indicate the error.
     */
 
-    if (a == EOF) {
-        *word_tmp_len = 0;
-    }
-
     // if the input *line_tmp_p string is empty, *word_tmp_len is not set to 0 by sscanf
-    if (**line_tmp_p == '\0' || ) {
+    if (**line_tmp_p == '\0' || a == EOF) {
         *word_tmp_len = 0;
         *word_tmp = '\0';
     }
@@ -165,7 +161,7 @@ void extract_line(bool verif) {
 
             // at this point, nothing is expected in line_tmp_p
             // reset tmp to an non zero value
-            tmp = 1;
+            tmp = 0;
             int a = sscanf(line_tmp_p, " %s%n", word_tmp, &tmp);
 
             if ( verif && a != EOF && tmp != 0){
