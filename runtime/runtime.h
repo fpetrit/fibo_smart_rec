@@ -9,7 +9,7 @@ typedef struct {
 
 } MP;
 
-short *init_mp(void);
+//short *init_mp(void);
 
 void pop(short);
 void ipop(short);

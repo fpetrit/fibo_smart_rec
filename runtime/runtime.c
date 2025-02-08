@@ -22,16 +22,6 @@ const char * errors[] = {
     "unknown operation: op %d",                                                                                 // 10
     "stack underflow in op %d",                                                                                 // 11
 };
-/*
-P
-A
-Sµ
-OUµ
-BL
-I
-ER
-LES
-*/
 
 // necessary to allocate memory for EMT with init_mp
 MP mp = {0, 0, NULL, 0};
@@ -77,15 +67,15 @@ void pop(short x) {
 
 
 void ipop(short x){
+    short n = mp.EMT[mp.SP - 1];
     if (mp.SP <= 1) // stack underflow
         throw_running_error("[ipop]", 3, 0);
 
-    else if (mp.EMT[mp.SP - 1] < 0 || mp.EMT[mp.SP - 1] >= MP_SUP) {    // invalid address
+    else if (n < 0 || n >= MP_SUP) {    // invalid address
         throw_running_error("[ipop]", 2, 0);
     }
 
     else {    
-        short n = mp.EMT[mp.SP - 1];
         mp.EMT[n] = mp.EMT[mp.SP - 2];
         mp.SP -= 2;
         
@@ -176,16 +166,15 @@ void jnz(short adr){          /*Faire attention au cas ou PC sort de l'intervall
 
 
 void call(short adr) {
-    if (mp.SP >= MP_SUP){
+    if (mp.SP >= MP_SUP){   // stack overflow
         throw_running_error("[call]", 4, 0);
     }
-    // Empiler PC sur la pile
-    mp.EMT[mp.SP++] = mp.PC; //on empile la valeur de l'instruction apres le call           
-    // Ajouter adr au registre PC
+    // stack PC on the stack
+    mp.EMT[mp.SP++] = mp.PC;     
     if (adr == - 1){    // infinite loop on the same instruction
         throw_running_error("[call]", 7, 0);
     }
-    else mp.PC += adr;   /*on pourrait afficher un warning puisque PC sera bcp trop en dehors de la Pile mais sa fera trop de warnings si on effectue la tache bcp trop de fois*/
+    else mp.PC += adr;
 
 }
 
@@ -195,7 +184,7 @@ void ret(short x){
     // if (mp.PC == v->count){ // Pc is pointing to smth out of bounds
     //     throw_running_error("[ret]", 8);
     // }
-    if (mp.SP < 1) {   // accessing address(es) out of bounds
+    if (mp.SP <= 0) {   // accessing address(es) out of bounds
         throw_running_error("[ret]", 3, 0);
     }
     mp.SP--;
@@ -227,7 +216,7 @@ void write(short x){
     else throw_running_error("[write]", 2, 0); // accessing address out of range
 }
 
-void op(short i) {  // ATTENTION TRAVAILLER LE CAS OU Y A QUE UN ELEMENT DANS LE STACKKK et divsion par 0
+void op(short i) {
     if (mp.SP < 2 && i != 9 && i != 15) {   // accessing address(es) out of bounds
         throw_running_error("[op]", 11, i);
     }
@@ -284,7 +273,7 @@ void op(short i) {  // ATTENTION TRAVAILLER LE CAS OU Y A QUE UN ELEMENT DANS LE
             case 7: // ^ 
                     mp.SP--;
                     mp.EMT[mp.SP - 1] ^= mp.EMT[mp.SP];
-                    
+
                 break;
 
             case 8: // &
@@ -360,17 +349,14 @@ void op(short i) {  // ATTENTION TRAVAILLER LE CAS OU Y A QUE UN ELEMENT DANS LE
     }
 }
 
-void rnd(short x){      //ATTENTION. Faut etre sur que ce ne'est pas l'utilisateur qui rentre de valeur ici, sinon faut changer le code pour qu'il ne puisse uniquement entrer un truc de valide
-    if (mp.SP < 0){ // Out of bounds (case almost impossible to happen)
-        throw_running_error("[rnd]", 2, 0);
-    }
-    else if (mp.SP >= MP_SUP){  // stack overflow
+void rnd(short x){
+    if (mp.SP >= MP_SUP){  // stack overflow
         throw_running_error("[rnd]", 4, 0);
     }
     else {
         // Generating the random number between 0 and x-1
-        short random_value = rand() % x;
-        mp.EMT[mp.SP] = random_value;
+        short random_value = rand() % x;     //the remainder keeps the sign of the dividend always
+        mp.EMT[mp.SP] = random_value;   
         mp.SP++;
     }
 }
