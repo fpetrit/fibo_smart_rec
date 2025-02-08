@@ -3,7 +3,6 @@
 .vscode
 *.txt
 test.c
-simulateur
 test
 
 !pgm.txt
