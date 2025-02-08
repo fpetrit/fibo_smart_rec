@@ -1,0 +1,8 @@
+boucle: rnd 300
+        push# 1002
+        ipop
+        write 1002
+        read 1003
+        push 1003
+        jnz boucle
+halt

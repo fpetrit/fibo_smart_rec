@@ -1,0 +1,6 @@
+read 1000
+push# 8000
+ipush
+push# 1001
+ipop
+write 1001

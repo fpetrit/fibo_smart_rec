@@ -9,8 +9,6 @@
 
 
 const char * errors[] = {
-    //each error message down below starts with ": " to get a nice error message
-
     "", // errcode 0 means no error                                                                             // 0
     "dynamic memory allocation failed",                                                                         // 1
     "memory address out of range",                                                                              // 2
@@ -49,6 +47,7 @@ static inline void throw_running_error(char prefix[], unsigned char errcode, int
     mp.error = errcode;
     fprintf(stderr, "Error: %s ", prefix);   //fprintf(stderr, ...) ensures that error messages are printed immediately, even if the program crashes
     fprintf(stderr, errors[errcode], data);
+    fprintf(stderr, "\n");
 }
 
 
@@ -220,8 +219,6 @@ void read(short x){
         throw_running_error("[read]", 2, 0);
 }
 
- 
-
 void write(short x){
     if (0 <= x && x < MP_SUP) {
         printf("Value at address %d: %hd\n", x, mp.EMT[x]);
@@ -373,10 +370,8 @@ void rnd(short x){      //ATTENTION. Faut etre sur que ce ne'est pas l'utilisate
     else {
         // Generating the random number between 0 and x-1
         short random_value = rand() % x;
-
         mp.EMT[mp.SP] = random_value;
         mp.SP++;
-        
     }
 }
 
@@ -439,6 +434,8 @@ const void (*mp_functions[15])(short) = {
     rnd,
     dup,
 };
+
+
 
 
 void run(FILE * hexa){
