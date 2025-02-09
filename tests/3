@@ -2,7 +2,7 @@ ici:             read 1000
 push           1000
             push#    0    
 
-
+; ceci est un commentaire
 
 op      0               
    jnz     fin      

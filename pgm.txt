@@ -1,5 +1,0 @@
-push# 3
-push# 7
-pop 1000
-pop 1001
-pop 1002

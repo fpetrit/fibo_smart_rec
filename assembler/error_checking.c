@@ -78,6 +78,10 @@ static inline void read_word(char * word_tmp, char ** line_tmp_p, int * word_tmp
 
     // cannot use read_char_no because %n conversion specifier counts the blank chararcters
     *word_tmp_len = strlen(word_tmp);
+
+    // check is the read word is a comment
+    if (*word_tmp_len > 0 && *word_tmp == ';')
+        infos.skip = true;
 }
 
 
