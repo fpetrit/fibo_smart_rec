@@ -1,3 +1,7 @@
+/**
+ * @file
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -6,6 +10,7 @@
 
 extern Checking_infos infos;
 
+/// @brief Stores all the parsing error strings. Their index in the array corresponds to the @ref Error::err_code integer.
 static const char * err_codes[] = {
     "assembling succeeded",                                                 // 0
     "this is not a valid opstring",                                         // 1

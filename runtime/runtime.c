@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Contains all the runtime related functions, each opcode instruction implementation and a run function.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -8,6 +13,7 @@
 #include "../constants.h"
 
 
+ /// @brief Stores the available error strings. Used by the @ref throw_running_error function.
 const char * errors[] = {
     "", // errcode 0 means no error                                                                                 // 0
     "dynamic memory allocation failed",                                                                             // 1
@@ -24,9 +30,7 @@ const char * errors[] = {
     "the process exited because it ran out of instructions (no halt) or because of a jump to an illegal address (no. %d)",  // 12
 };
 
-// necessary to allocate memory for EMT with init_mp
 MP mp = {0, 0, NULL, 0};
-
 
 // throw a running error by setting mp.error accordingly and printing the message (index errcode in global const 'errors' array)
 // "catch" happen in the run function, but displayed instant
@@ -34,9 +38,15 @@ MP mp = {0, 0, NULL, 0};
 // prefix 'static' --> makes a function visible only in the file where it is found
 // prefix 'inline' --> makes recurrent calls to the function go faster
 
+
+/**
+ * @brief Throws a runtime error by setting the @ref MP::error error code.
+ * This integer is used as an idex in the @ref errors global array to retrive the correspondig error string. 
+ * Displays the error immediately even if it is caught in loop of the @ref run function.
+ */
 static inline void throw_running_error(char prefix[], unsigned char errcode, int data){
     mp.error = errcode;
-    fprintf(stderr, "Error: %s ", prefix);   //fprintf(stderr, ...) ensures that error messages are printed immediately, even if the program crashes
+    fprintf(stderr, "Error: %s ", prefix);
     fprintf(stderr, errors[errcode], data);
     fprintf(stderr, "\n");
 }
@@ -423,8 +433,10 @@ const void (*mp_functions[15])(short) = {
 };
 
 
-
-
+/**
+ * @brief Contains the runtime loop to execute each instructions (loaded in a @ref Instruction_vector). Manages the Prgram Counter (PC).
+ * The simulator ram is allocated here on the stack. 
+ */
 void run(FILE * hexa){
 
     short memory[MP_SUP] = {0};
@@ -436,9 +448,6 @@ void run(FILE * hexa){
     Instruction_vector_init(&instructions);
 
     // fseek: reset the file cursor at the specified position
-    // SEEK_SET is a constant definied in the standard lib
-    // it means the beginning of the file
-    // All in all fseek(*FILE, steps+start, start)
     fseek(hexa, 0, SEEK_SET);
 
     // bufffers to extract data from the hexa "machine code"
@@ -455,10 +464,6 @@ void run(FILE * hexa){
         // if the vector is full, the available size automatically increases (vector)
         Instruction_vector_append(&instructions, opcode, operand);
     }
-
-    // running the instructions
-    // warning: possibly an ininite loop if there is no halt in instructions
-    // other program ending condition ?
 
     // while the instruction is not halt, and address in the right range
     while ( 0 <= mp.PC && mp.PC < instructions.count && instructions.arr[mp.PC].opcode != 99 && ! mp.error){

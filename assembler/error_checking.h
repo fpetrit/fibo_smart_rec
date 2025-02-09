@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Functions to extract & check the data from a source code line. Used by @ref parse and @ref assemble.
+ */
+
 #ifndef ERROR_CHECKING_H
 #define ERROR_CHECKING_H
 
@@ -8,6 +13,7 @@ extern Checking_infos infos;
 
 /**
  * @brief Fills all members of the external @ref Checking_infos variable from the string stored in @ref Checking_infos::line.
+ * May set the global @ref Checking_infos::error if verif is true.
  */
 void extract_line(bool verif);
 

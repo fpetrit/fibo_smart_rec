@@ -18,7 +18,7 @@
 #include "error_checking.h"
 
 
-/// @brief Defined in @ref assembler.c to pass all the extraction buffers to the parse underlying functions.
+/// @brief Defined in @ref assembler.c to pass all the extraction buffers to the parsing underlying functions.
 extern Checking_infos infos;
 
 extern regex_t label_regex;
@@ -31,7 +31,7 @@ extern regex_t label_regex;
  * 1: signed short operand
  * 2: signed short OR label operand
  * 
- * The data associated to the opcode i is stored at index i of the array
+ * The data associated to the opcode i is stored at index i of the array.
  * 
  * @warning The opcode 99 (halt) is locally remapped, it becomes opcode 14 and correponds to the last element of the array.
  */
