@@ -33,7 +33,6 @@ const char * errors[] = {
 MP mp = {0, 0, NULL, 0};
 
 // throw a running error by setting mp.error accordingly and printing the message (index errcode in global const 'errors' array)
-// "catch" happen in the run function, but displayed instant
 
 // prefix 'static' --> makes a function visible only in the file where it is found
 // prefix 'inline' --> makes recurrent calls to the function go faster
@@ -51,16 +50,6 @@ static inline void throw_running_error(char prefix[], unsigned char errcode, int
     fprintf(stderr, "\n");
 }
 
-
-// // allocation dynamique de l'espace mémoire de travail (5000 short)
-// short *init_mp(void){
-//     short *p = malloc(MP_SUP * sizeof(short));
-//     if(!p){
-//         throw_running_error("[init_mp]", 1, 0);
-//     }
-//     return p;
-//}
-
 void pop(short x) {      
     if (x < 0 || x >= MP_SUP){  // invalid address
         throw_running_error("[pop]", 2, 0);
@@ -71,11 +60,8 @@ void pop(short x) {
     else {
         mp.SP--;
         mp.EMT[x] = mp.EMT[mp.SP];
-        
     }
 }
-
-
 
 void ipop(short x){
     short n = mp.EMT[mp.SP - 1];
@@ -89,11 +75,8 @@ void ipop(short x){
     else {    
         mp.EMT[n] = mp.EMT[mp.SP - 2];
         mp.SP -= 2;
-        
     }
 }
-
-
 
 void push(short x){
     if (mp.SP >= MP_SUP){   // stack overflow
@@ -104,12 +87,9 @@ void push(short x){
     }
     else {
         mp.EMT[mp.SP] = mp.EMT[x];
-        mp.SP++;
-        
+        mp.SP++;      
     }
 }
-
-
 
 void ipush(short x){
     if (mp.EMT[mp.SP - 1] < 0 || mp.EMT[mp.SP - 1] >= MP_SUP){  // invalid address
@@ -117,12 +97,9 @@ void ipush(short x){
     }
     else {   
         short n = mp.EMT[mp.SP - 1];  
-        mp.EMT[mp.SP - 1] = mp.EMT[n];       //SP is not decremented as changes are direclty made to mp.EMT[SP - 1]
-        
+        mp.EMT[mp.SP - 1] = mp.EMT[n];       //SP is not decremented as changes are direclty made to mp.EMT[SP - 1]  
     }
 }
-
-
 
 void push_(short i){
     if (mp.SP >= MP_SUP){   // stack overflow
@@ -130,51 +107,31 @@ void push_(short i){
     }
     else {
         mp.EMT[mp.SP] = i;
-        mp.SP++;
-        
+        mp.SP++;       
     }
 }
 
-
-
 void jmp(short adr){
-    // if (((mp.PC + adr) >= v->count) || ((mp.PC + adr) < 0)){ // faut initialiser ici une variable globale representant le vecteur d'instructions pour que ca marche
-    //     throw_running_error("[jmp]", 6);
-    // }
     if (adr == -1){    // infinite loop on the same instruction
         throw_running_error("[jmp]", 7, 0);
     }
-    else {  
-        mp.PC += adr;
-        
-    }
+    else mp.PC += adr;    
 }
 
-
-
-void jnz(short adr){          /*Faire attention au cas ou PC sort de l'intervalle permis*/
+void jnz(short adr){
     if (mp.SP <= 0) {  // adress(es) out of bounds
         throw_running_error("[jnz]", 3, 0);
     }
     else {
         mp.SP--;
         if (mp.EMT[mp.SP]){
-            // if (((mp.PC + adr) >= v->count) || ((mp.PC + adr) < 0)){ // faut initialiser ici une variable globale representant le vecteur d'instructions pour que ca marche
-            //     throw_running_error("[jnz]", 6);
-            // }
             if (adr == -1){    // infinite loop on the same instruction
                 throw_running_error("[jnz]", 7, 0);
             }
-            else {  
-                mp.PC += adr;
-
-            }
+            else mp.PC += adr;
         }
-    
     }
 }
-
-
 
 void call(short adr) {
     if (mp.SP >= MP_SUP){   // stack overflow
@@ -189,12 +146,7 @@ void call(short adr) {
 
 }
 
-
-
 void ret(short x){
-    // if (mp.PC == v->count){ // Pc is pointing to smth out of bounds
-    //     throw_running_error("[ret]", 8);
-    // }
     if (mp.SP <= 0) {   // accessing address(es) out of bounds
         throw_running_error("[ret]", 3, 0);
     }
@@ -203,7 +155,6 @@ void ret(short x){
 }
 
 void read(short x){
-
     if ( 0 <= x && x < MP_SUP){
         long input ;
         printf("Enter a short: ");
@@ -221,8 +172,7 @@ void read(short x){
 
 void write(short x){
     if (0 <= x && x < MP_SUP) {
-        printf("Value at address %d: %hd\n", x, mp.EMT[x]);
-        
+        printf("Value at address %d: %hd\n", x, mp.EMT[x]);       
     }
     else throw_running_error("[write]", 2, 0); // accessing address out of range
 }
@@ -236,89 +186,74 @@ void op(short i) {
             case 0: // Equality test
                     mp.SP--;
                     if (mp.EMT[mp.SP - 1] == mp.EMT[mp.SP]) mp.EMT[mp.SP - 1] = 1;
-                    else mp.EMT[mp.SP - 1] = 0;
-                    
+                    else mp.EMT[mp.SP - 1] = 0;  
                 break;
 
             case 1: // Inequality test
                     mp.SP--;
                     if (mp.EMT[mp.SP - 1] != mp.EMT[mp.SP]) mp.EMT[mp.SP - 1] = 1; 
                     else mp.EMT[mp.SP - 1] = 0;
-
                 break;
 
             case 2: // >= test
                     mp.SP--;
                     if (mp.EMT[mp.SP - 1] >= mp.EMT[mp.SP]) mp.EMT[mp.SP - 1] = 1; 
-                    else mp.EMT[mp.SP - 1] = 0;
-                    
+                    else mp.EMT[mp.SP - 1] = 0;   
                 break;
 
             case 3: // <= test
                     mp.SP--;
                     if (mp.EMT[mp.SP - 1] <= mp.EMT[mp.SP]) mp.EMT[mp.SP - 1] = 1; 
-                    else mp.EMT[mp.SP - 1] = 0;
-                    
+                    else mp.EMT[mp.SP - 1] = 0;                  
                 break;
 
             case 4: // > test
                     mp.SP--;
                     if (mp.EMT[mp.SP - 1] > mp.EMT[mp.SP]) mp.EMT[mp.SP - 1] = 1; 
-                    else mp.EMT[mp.SP - 1] = 0;
-                    
+                    else mp.EMT[mp.SP - 1] = 0;   
                 break;
 
             case 5: // < test
                     mp.SP--;
                     if (mp.EMT[mp.SP - 1] < mp.EMT[mp.SP]) mp.EMT[mp.SP - 1] = 1; 
-                    else mp.EMT[mp.SP - 1] = 0;
-                    
+                    else mp.EMT[mp.SP - 1] = 0;                
                 break;
 
             case 6: // | 
                     mp.SP--;
-                    mp.EMT[mp.SP - 1] |= mp.EMT[mp.SP];
-                    
+                    mp.EMT[mp.SP - 1] |= mp.EMT[mp.SP];     
                 break;
             
             case 7: // ^ 
                     mp.SP--;
                     mp.EMT[mp.SP - 1] ^= mp.EMT[mp.SP];
-
                 break;
 
             case 8: // &
                     mp.SP--;
-                    mp.EMT[mp.SP - 1] &= mp.EMT[mp.SP];
-                    
+                    mp.EMT[mp.SP - 1] &= mp.EMT[mp.SP];                
                 break;
 
             case 9: // ~ 
                 if (mp.SP < 1) { // accessing address out of bounds
                     throw_running_error("[op]", 11, 9);
                 }
-                else {
-                    mp.EMT[mp.SP - 1] = ~mp.EMT[mp.SP - 1];
-                    
-                }
+                else mp.EMT[mp.SP - 1] = ~mp.EMT[mp.SP - 1];   
                 break;
 
             case 10: // add up the two elements at the top of the stack
                     mp.SP--;
-                    mp.EMT[mp.SP - 1] += mp.EMT[mp.SP];
-                    
+                    mp.EMT[mp.SP - 1] += mp.EMT[mp.SP];                   
                 break;
 
             case 11: // substract the two elements at the top of the stack 
                     mp.SP--;
-                    mp.EMT[mp.SP - 1] -= mp.EMT[mp.SP];
-                    
+                    mp.EMT[mp.SP - 1] -= mp.EMT[mp.SP];           
                 break;
 
             case 12: // multiply the two elements at the top of the stack  
                     mp.SP--;
-                    mp.EMT[mp.SP - 1] *= mp.EMT[mp.SP];
-                    
+                    mp.EMT[mp.SP - 1] *= mp.EMT[mp.SP];                
                 break;
 
             case 13: // whole division between the two elements at the top of the stack
@@ -327,8 +262,7 @@ void op(short i) {
                 }
                 else {
                     mp.SP--;
-                    mp.EMT[mp.SP - 1] /= mp.EMT[mp.SP];
-                    
+                    mp.EMT[mp.SP - 1] /= mp.EMT[mp.SP];    
                 }
                 break;
 
@@ -338,8 +272,7 @@ void op(short i) {
                 }
                 else {
                     mp.SP--;
-                    mp.EMT[mp.SP - 1] %= mp.EMT[mp.SP];
-                    
+                    mp.EMT[mp.SP - 1] %= mp.EMT[mp.SP];  
                 }
                 break;
 
@@ -347,10 +280,7 @@ void op(short i) {
                 if (mp.SP < 1) { // accessing address out of bounds
                     throw_running_error("[op]", 11, 15);
                 }
-                else {
-                    mp.EMT[mp.SP - 1] = -mp.EMT[mp.SP - 1];
-                    
-                }
+                else mp.EMT[mp.SP - 1] = -mp.EMT[mp.SP - 1];
                 break;
             
             default:
@@ -372,8 +302,6 @@ void rnd(short x){
     }
 }
 
-
-
 void dup(short x){
     if (mp.SP <= 0){    // Empty stack
         throw_running_error("[dup]", 2, 0);
@@ -383,37 +311,9 @@ void dup(short x){
     }
     else {
         mp.EMT[mp.SP] = mp.EMT[mp.SP - 1];
-        mp.SP++;
-        
+        mp.SP++;  
     }
 }
-
-/*ptet c mieux dinitilaiser dans la struct de MP PC et SP en tant que shorts*/
-// int main(short){
-//     mp.EMT = init_mp();  /*Allouer la memoire dynamique pour l espace memoire de stockage*/
-//     mp.EMT[0] = 0;
-//     mp.EMT[1] = 2;
-//     mp.EMT[2] = 4;
-//     mp.EMT[3] = 6;
-//     mp.EMT[4] = 8;
-
-//     printf("%d\n", mp.SP);
-//     printf("%d\n", mp.PC);
-
-//     push(2);
-//     printf("%d\n%d\n",mp.SP, mp.PC);
-//     printf("%d\n", mp.EMT[0]);
-//     //jmp(2);
-//     //printf("%d\n%d\n", mp.SP, mp.PC);
-//     //pop(4999);
-//     //printf("%d\n", mp.EMT[4999]);
-//     //pop(4998);
-//     //printf("%d\n", mp.EMT[4998]);
-//     //pop(4997);
-//     mp.SP = 1;
-//     op(0);
-// }
-
 
 const void (*mp_functions[15])(short) = {
     pop,
@@ -439,7 +339,7 @@ const void (*mp_functions[15])(short) = {
  */
 void run(FILE * hexa){
 
-    short memory[MP_SUP] = {0};
+    short memory[MP_SUP] = {0}; // initializing all the memory "cells" to 0
     mp.EMT = memory;
     mp.PC = 0;
     mp.SP = 0;
@@ -450,7 +350,7 @@ void run(FILE * hexa){
     // fseek: reset the file cursor at the specified position
     fseek(hexa, 0, SEEK_SET);
 
-    // bufffers to extract data from the hexa "machine code"
+    // buffers to extract data from the hexa "machine code"
     unsigned char opcode;
     short operand;
   
@@ -465,7 +365,11 @@ void run(FILE * hexa){
         Instruction_vector_append(&instructions, opcode, operand);
     }
 
-    // while the instruction is not halt, and address in the right range
+    // running the instructions
+    // warning: possibly an ininite loop if there is no halt in instructions
+    // other program ending condition ?
+
+    // while the instruction is not halt, and address is in the right range
     while ( 0 <= mp.PC && mp.PC < instructions.count && instructions.arr[mp.PC].opcode != 99 && ! mp.error){
 
         opcode = instructions.arr[mp.PC].opcode;
