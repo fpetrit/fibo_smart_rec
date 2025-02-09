@@ -4,10 +4,10 @@
 typedef struct {
     int PC;
     int SP;
-    short *EMT;
-    unsigned char error;
+    short *EMT; // EMT = Espace Memoire de Stockage
+    unsigned char error;    
 
-} MP;
+} MP;   // MP = Machine a Pile
 
 //short *init_mp(void);
 
