@@ -1,8 +1,25 @@
-here:    read 1000
-         push 1000
-         write 1000
-         read 1000
-         push 1000
-         jmp -1
-         jmp fin
-fin:     halt
+; reads an input, stores it at 1000, stores it at 1001, prints the input at 1001
+; if the input is 0, calls func and exits, else reproduces the previous steps
+; func read an input and stores it at 1000, push the input onto the stack, duplicates it onto the stack
+; op 15 takes replaces the duplicated input on the stack by its opposite, then sum with the original input
+; result must be 0 
+
+here:   read 1000
+        push# 1000
+        ipush
+        push# 1001
+        ipop
+        write 1001
+        push 1001
+        jnz here
+        call func
+        halt
+        
+func:   read 1000
+        push 1000
+        dup
+        op 15
+        op 10
+        pop 1000
+        write 1000
+        ret

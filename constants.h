@@ -1,7 +1,7 @@
 #ifndef PREPROCESSOR_CONSTS_H
 #define PREPROCESSOR_CONSTS_H
 
-#define LINE_MAX_LEN                100
+#define LINE_MAX_LEN                200
 #define INSTRUCTIONS_MAX_NO         500
 #define LABEL_MAX_LEN               30
 #define LABEL_MAX_NO                60

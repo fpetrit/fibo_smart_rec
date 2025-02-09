@@ -1,5 +1,7 @@
-ici:             read 1000         
-push           1000
+; program example from projet.pdf but with a lot of spaces
+
+      ici:             read 1000         
+   push           1000
             push#    0    
 
 ; ceci est un commentaire
@@ -17,4 +19,4 @@ pop         1000
 
 write 1000
 jmp              ici
-      fin:    halt               
+      fin:    halt          

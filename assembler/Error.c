@@ -7,16 +7,16 @@
 extern Checking_infos infos;
 
 static const char * err_codes[] = {
-    "assembling succeeded",                                     // 0
-    "this is not a valid opstring",                             // 1
-    "no operand is expected for this opstring",                 // 2
-    "an operand is expected for this opstring",                 // 3
-    "label has not been declared",                              // 4
-    "wrong syntax",                                             // 5
-    "operand must be a signed short",                           // 6
-    "invalid label name",                                       // 7
-    "label already defined",                                    // 8
-    "operand must be a signed short or a label",                // 9
+    "assembling succeeded",                                                 // 0
+    "this is not a valid opstring",                                         // 1
+    "no operand is expected for this opstring",                             // 2
+    "an operand is expected for this opstring",                             // 3
+    "label has not been declared",                                          // 4
+    "wrong syntax",                                                         // 5
+    "operand must be a signed short",                                       // 6
+    "invalid label name, the regex pattern is ^[_a-zA-Z][_0-9a-zA-Z]*$",    // 7
+    "label already defined",                                                // 8
+    "operand must be a signed short or a label",                            // 9
 } ;
 
 

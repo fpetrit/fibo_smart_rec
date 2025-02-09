@@ -1,6 +1,13 @@
-read 1000
-push# 8000
-ipush
-push# 1001
-ipop
-write 1001
+; program example from projet.pdf
+
+ici: read 1000
+push 1000
+push# 0
+op 0
+jnz fin
+push 1000
+op 15
+pop 1000
+write 1000
+jmp ici
+fin: halt
