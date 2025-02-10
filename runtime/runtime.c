@@ -365,10 +365,6 @@ void run(FILE * hexa){
         Instruction_vector_append(&instructions, opcode, operand);
     }
 
-    // running the instructions
-    // warning: possibly an ininite loop if there is no halt in instructions
-    // other program ending condition ?
-
     // while the instruction is not halt, and address is in the right range
     while ( 0 <= mp.PC && mp.PC < instructions.count && instructions.arr[mp.PC].opcode != 99 && ! mp.error){
 

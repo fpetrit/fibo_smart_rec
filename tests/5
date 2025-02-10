@@ -1,0 +1,3 @@
+read 1000
+write 1000
+jmp -2
