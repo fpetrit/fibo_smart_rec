@@ -290,17 +290,38 @@ void op(short i) {
     }
 }
 
-void rnd(short x){
-    if (mp.SP >= MP_SUP){  // stack overflow
+ void rnd(short x){
+    if (mp.SP >= MP_SUP){ // stack overflow
         throw_running_error("[rnd]", 4, 0);
     }
+
+    else if (x == 0) { // only 0 and -1 are possible values
+        short random_value = -rand() % 2; //the remainder keeps the sign of the dividend always
+        mp.EMT[mp.SP] = random_value;
+        mp.SP++;
+    }
+
+    else if (x == -32768){
+        printf("Warning: the operand of rnd in the source code minus 1 is not a short. You won't be able to get the value -32769.\n");
+        short random_value = -rand() % (-x + 2); //the remainder keeps the sign of the dividend always
+        mp.EMT[mp.SP] = random_value;
+        mp.SP++;
+    }
+
+    else if (x < 0){
+        short random_value = -rand() % (-x + 2); //the remainder keeps the sign of the dividend always
+        mp.EMT[mp.SP] = random_value;
+        mp.SP++;
+    }
+
     else {
         // Generating the random number between 0 and x-1
-        short random_value = rand() % x;     //the remainder keeps the sign of the dividend always
-        mp.EMT[mp.SP] = random_value;   
+        short random_value = rand() % x; //the remainder keeps the sign of the dividend always
+        mp.EMT[mp.SP] = random_value;
         mp.SP++;
     }
 }
+
 
 void dup(short x){
     if (mp.SP <= 0){    // Empty stack
