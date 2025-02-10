@@ -153,7 +153,7 @@ void ret(short x){
 
 void read(short x){
     if ( 0 <= x && x < MP_SUP){
-        long input ;
+        long input = 0;
         printf("Enter a short: ");
         scanf("%ld", &input);
         while (getchar() != '\n');
