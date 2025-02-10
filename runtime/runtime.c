@@ -32,11 +32,8 @@ const char * errors[] = {
 
 MP mp = {0, 0, NULL, 0};
 
-// throw a running error by setting mp.error accordingly and printing the message (index errcode in global const 'errors' array)
-
-// prefix 'static' --> makes a function visible only in the file where it is found
-// prefix 'inline' --> makes recurrent calls to the function go faster
-
+// keyword 'static' --> makes a function visible only in the file where it is found
+// keyword 'inline' --> replaces the the function calls by the function's body (faster execution, no new stack frames, no jumps)
 
 /**
  * @brief Throws a runtime error by setting the @ref MP::error error code.
