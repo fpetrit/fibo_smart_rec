@@ -49,6 +49,7 @@ typedef enum {
     BAD_LABEL_NAME,
     LABEL_ALREADY_DEFINED,
     BAD_OPERAND,
+    EMPTY_FILE,
 
 } PARSING_ERROR ;
 

@@ -22,6 +22,7 @@ static const char * err_codes[] = {
     "invalid label name, the regex pattern is ^[_a-zA-Z][_0-9a-zA-Z]*$",    // 7
     "label already defined",                                                // 8
     "operand must be a signed short or a label",                            // 9
+    "the source file is empty",                                             // 10
 } ;
 
 

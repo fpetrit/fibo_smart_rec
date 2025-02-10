@@ -126,6 +126,10 @@ int parse(FILE * src, Label_vector * labels){
 
     } // end of while loop
 
+    // avoid any execution on empty file
+    if (infos.address == -1)
+        set_error(EMPTY_FILE, "");
+
     if (! infos.error.err_code)
         check_labels(labels);
 
